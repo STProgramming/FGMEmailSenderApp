@@ -1,0 +1,22 @@
+<div class="container">
+    <h4>Login</h4>
+    <form [formGroup]="loginForm">
+        <p>
+            <mat-form-field appearance="standard">
+              <mat-label>Email</mat-label>
+              <input matInput type="text" placeholder="Inserisci qui la tua email" formControlName="Email">
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field appearance="standard">
+              <mat-label>Password</mat-label>
+              <input matInput type="password" placeholder="Inserisci qui la password" formControlName="Password">
+            </mat-form-field>
+        </p>
+        <p>  
+          <label>Resta connesso</label>
+          <input type="checkbox" formControlName="LoginStores">
+        </p>
+        <button [disabled]="!loginForm.valid" (click)="onSubmit(loginForm)">Login</button>
+    </form>
+</div>

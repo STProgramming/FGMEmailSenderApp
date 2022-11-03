@@ -1,0 +1,56 @@
+<div class="container">
+    <div *ngIf="succeded == false">
+      <h4>Registrati</h4>
+      <p>Registrati al nostro portale per avere promozioni e aggiornamenti sullo stato del tuo carico</p>
+      <p>I dati sensibili sono trattati secondo le recenti funzioni del G.D.P.R</p>
+    </div>
+    <div *ngIf="succeded">
+        <p>Abbiamo inviato una email all' indirizzo {{newUserEmail}}</p>
+        <p>Per confermare la registrazione ha a disposizione 1 giorno. Dovra' seguire le istruzioni inviate al suo indirizzo email.</p>
+        <p>Grazie per la pazienza</p>
+    </div>
+    <form [formGroup]="registrationFormNewUser">
+        <p>
+            <mat-form-field appearance="standard">
+              <mat-label>Nome</mat-label>
+              <input matInput type="text" placeholder="Inserisci qui il nome" formControlName="Name">
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field appearance="standard">
+              <mat-label>Cognome</mat-label>
+              <input matInput type="text" placeholder="Inserisci qui il cognome" formControlName="LastName">
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field appearance="standard">
+              <mat-label>Email</mat-label>
+              <input matInput type="text" placeholder="Inserisci qui l'email" formControlName="Email">
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field appearance="standard">
+              <mat-label>Numero di cellulare</mat-label>
+              <input matInput type="number" placeholder="Inserisci qui il numero cellulare" formControlName="PhoneNumber">
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field appearance="standard">
+              <mat-label>Password</mat-label>
+              <input matInput type="text" placeholder="Inserisci qui la password" formControlName="Password">
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field appearance="standard">
+              <mat-label>Conferma Password</mat-label>
+              <input matInput type="text" placeholder="Conferma password" formControlName="ConfirmPassword">
+            </mat-form-field>
+        </p>
+        <p>
+            <label>Trattamento dati personali</label>
+            Consento FGM Trasporti s.r.l al trattamento dei dati personali in conformita' al G.D.P.R
+            <input matInput type="checkbox" formControlName="GDPRConfirmRead">
+        </p>
+        <button [disabled]="!registrationFormNewUser.valid" (click)="onSubmit(registrationFormNewUser)">Registrati</button>
+    </form>
+</div>

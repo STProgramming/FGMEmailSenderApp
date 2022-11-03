@@ -1,0 +1,10 @@
+<div *ngIf="(_sessionExist | async)">
+    <div *ngIf="(_authentication | async)">
+        <button (click)="logout()">Logout</button>
+        <button (click)="redirectWorkspace()">Workspace</button>
+    </div>
+    <div *ngIf="(_authentication | async) == false">
+        <button (click)="redirectLogin()">Login</button>
+        <button (click)="redirectRegister()">Registrati</button>
+    </div>
+</div>

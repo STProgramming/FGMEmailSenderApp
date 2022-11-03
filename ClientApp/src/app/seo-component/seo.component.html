@@ -1,0 +1,120 @@
+<button (click)="goToCedCountry('create', null)">Crea Nazione</button>
+<div *ngIf="!isEmptyListCoun">
+    <button (click)="goToCedDepartment('create', null)">Crea Dipartimento</button>
+</div>
+<div *ngIf="!isEmptyListCoun">
+    <mat-accordion>
+        <mat-expansion-panel (opened)="panelOpenState = true"
+                           (closed)="panelOpenState = false">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    Nazioni
+                </mat-panel-title>
+                <mat-panel-description *ngIf="!isEmptyListCoun">
+                    Gestione di {{listCountries.length}} nazioni 
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+            <table *ngIf="!isEmptyListCoun" mat-table [dataSource]="listCountries" class="mat-elevation-z8">
+    
+                <ng-container matColumnDef="id">
+                  <th mat-header-cell *matHeaderCellDef> Id </th>
+                  <td mat-cell *matCellDef="let country"> {{country.idCountry}} </td>
+                </ng-container>
+              
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef> Nome nazione</th>
+                  <td mat-cell *matCellDef="let country"> {{country.countryName}} </td>
+                </ng-container>
+              
+                <ng-container matColumnDef="language">
+                  <th mat-header-cell *matHeaderCellDef> Lingua </th>
+                  <td mat-cell *matCellDef="let country"> {{country.languageCountry}} </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="edit">
+                    <th mat-header-cell *matHeaderCellDef> </th>
+                    <td mat-cell *matCellDef="let country">
+                        <button mat-icon-button (click)="goToCedCountry('edit', country.idCountry)">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                    </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="delete">
+                    <th mat-header-cell *matHeaderCellDef> </th>
+                    <td mat-cell *matCellDef="let country">
+                        <button mat-icon-button (click)="goToCedCountry('delete', country.idCountry)">
+                            <mat-icon>delete_outline</mat-icon>
+                        </button>
+                    </td>
+                  </ng-container>
+              
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsCountry"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsCountry;"></tr>
+              </table>
+        </mat-expansion-panel>
+    </mat-accordion>
+</div>
+<div *ngIf="!isEmptyListDep">
+    <mat-accordion>
+        <mat-expansion-panel (opened)="panelOpenState = true"
+                           (closed)="panelOpenState = false">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    Dipartimenti
+                </mat-panel-title>
+                <mat-panel-description *ngIf="!isEmptyListDep">
+                    Gestione di {{listDepartments.length}} dipartimenti
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+            <table *ngIf="!isEmptyListDep" mat-table [dataSource]="listDepartments" class="mat-elevation-z8">
+
+                <ng-container matColumnDef="id">
+                    <th mat-header-cell *matHeaderCellDef> Id </th>
+                    <td mat-cell *matCellDef="let department"> {{department.idDepartment}} </td>
+                  </ng-container>
+                
+                  <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef> Nome dipartimento</th>
+                    <td mat-cell *matCellDef="let department"> {{department.nameDepartment}} </td>
+                  </ng-container>
+                
+                  <ng-container matColumnDef="department code">
+                    <th mat-header-cell *matHeaderCellDef> Codice dipartimento </th>
+                    <td mat-cell *matCellDef="let department"> {{department.codeDepartment}} </td>
+                  </ng-container>
+      
+                  <ng-container matColumnDef="department city">
+                    <th mat-header-cell *matHeaderCellDef> Città dipartimento </th>
+                    <td mat-cell *matCellDef="let department"> {{department.cityDepartment}} </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="country">
+                    <th mat-header-cell *matHeaderCellDef> Nazione </th>
+                    <td mat-cell *matCellDef="let department"> {{getCountryNameById(department.fK_IdCountry)}} </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="edit">
+                      <th mat-header-cell *matHeaderCellDef> </th>
+                      <td mat-cell *matCellDef="let department">
+                          <button mat-icon-button (click)="goToCedDepartment('edit', department.idDepartment)">
+                              <mat-icon>more_vert</mat-icon>
+                          </button>
+                      </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="delete">
+                    <th mat-header-cell *matHeaderCellDef> </th>
+                    <td mat-cell *matCellDef="let department">
+                        <button mat-icon-button (click)="goToCedDepartment('delete', department.idDepartment)">
+                            <mat-icon>delete_outline</mat-icon>
+                        </button>
+                    </td>
+                  </ng-container>
+                
+                  <tr mat-header-row *matHeaderRowDef="displayedColumnsDepartment"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumnsDepartment;"></tr>      
+            </table>
+        </mat-expansion-panel>
+    </mat-accordion>
+</div>
