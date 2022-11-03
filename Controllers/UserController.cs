@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
-using Microsoft.Net.Http.Headers.CookieHeaders
 using static Duende.IdentityServer.Models.IdentityResources;
 using Microsoft.AspNetCore.Authentication;
+using System.Security;
+using FGMEmailSenderApp.Helpers;
+using Microsoft.AspNetCore.Identity.UI.V4.Pages.Account.Manage.Internal;
+using System.Data;
 
 namespace FGMEmailSenderApp.Controllers
 {
@@ -21,18 +24,21 @@ namespace FGMEmailSenderApp.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly DataHelper _dataHelper;
 
         public UserController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             ApplicationDbContext context,
-            SignInManager<ApplicationUser> signInManager
+            SignInManager<ApplicationUser> signInManager,
+            DataHelper dataHelper
         )
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _context = context;
             _signInManager = signInManager;
+            _dataHelper = dataHelper;
         }
 
         #region REGISTRAZIONE NUOVO UTENTE
@@ -197,7 +203,12 @@ namespace FGMEmailSenderApp.Controllers
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginModel.Password, loginModel.RememberMe);
 
-            if (!result.Succeeded) return StatusCode(401, new { message = "Wrong email or password", DateTime.Now });
+            if (!result.Succeeded)
+            {
+                await _userManager.AccessFailedAsync(user);
+
+                return StatusCode(401, new { message = "Wrong email or password", DateTime.Now });
+            }
 
             if (result.IsLockedOut) return StatusCode(401, new { message = "Your account is been locked out, try to after 1 hour or contact the administrator", DateTime.Now });
 
@@ -205,13 +216,13 @@ namespace FGMEmailSenderApp.Controllers
 
             if (result.RequiresTwoFactor)
             {
-                CreatingTokenCookie2FA(loginModel.Email);
+                await GenerateToken2FA();
 
                 return Ok(new { message = $"success = {result}, We send you the Two Factory Authentication token to your e-mail or your phone cell.", DateTime.Now });
             }
             else
             {
-                var roles = CreatingAuthCookie(user, loginModel.RememberMe);
+                var roles = await CreatingAuthCookie(user, loginModel.RememberMe);
 
                 return Ok(new { message = "success", user.Email, user.NameUser, user.LastNameUser, roles, DateTime.Now });
             }
@@ -219,23 +230,82 @@ namespace FGMEmailSenderApp.Controllers
 
         #endregion
 
-        #region INTERNAL - CHECK TOKEN COOKIE FOR 2 FACTORY AUTHENTICATION
+        #region POST 2FA TOKEN
 
-        internal void CreatingTokenCookie2FA(string email)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        [Route("Verify2FA")]
+        public async Task<IActionResult> Verify2FA(string codeToken, bool rememberMe = false)
         {
-            string nameToken2FA = "FGM2FAStatus";
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
 
-            var dataCookie = Request.Cookies[nameToken2FA];
+            if(user == null) throw new SecurityException($"Access denied, you have to provide you are enabled to two factory authentication {DateTime.Now}");
 
-            if (dataCookie != null) return;
+            string tokenProvider = user.PhoneNumberConfirmed ? "SMS" : "E-mail";
 
-            CookieOptions optionCookie = new CookieOptions();
+            if (codeToken == null) return StatusCode(403, new { message = "You need to provide the token of two factory authentication", DateTime.Now });
 
-            optionCookie.Expires = DateTime.Now.AddMinutes(30);
+            if (codeToken.All(c => Char.IsLetterOrDigit(c))) throw new SecurityException($"Your token doesn't respect the security role {DateTime.Now}");
 
-            optionCookie.HttpOnly = true;
+            //TODO ATTUALMENTE HARD CODATO IN ATTESA DI UNA DELUCIDAZIONE SU COME PRENDERE QUESTO BOOL "REMEMBER CLIENT"
 
-            Response.Cookies.Append(nameToken2FA, $"{email}", optionCookie);
+            var result = await _signInManager.TwoFactorSignInAsync(tokenProvider, codeToken, rememberMe, true);
+
+            if (!result.Succeeded)
+            {
+                await _userManager.AccessFailedAsync(user);
+
+                return StatusCode(401, new { message = "Wrong email or password", DateTime.Now });
+            }
+
+            if (result.IsLockedOut) return StatusCode(401, new { message = "Your account is been locked out, try to after 1 hour or contact the administrator", DateTime.Now });
+
+            if (result.IsNotAllowed) return StatusCode(401, new { message = "Your account is not allowed to log in anymore. Try to contact the administrator.", DateTime.Now });
+
+            var roles = await CreatingAuthCookie(user, rememberMe);
+
+            return Ok(new { message = "success", user.Email, user.NameUser, user.LastNameUser, roles, DateTime.Now });
+        }
+
+        #endregion
+
+        #region INTERNAL ACTION - GENERATE 2 FACTORY AUTHENTICATION TOKEN AND SEND IT
+
+        internal async Task<IActionResult> GenerateToken2FA()
+        {
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+
+            if (user == null) throw new SecurityException($"Access denied, you have to provide you are enabled to two factory authentication {DateTime.Now}");
+
+            string tokenProvider = String.Empty;
+
+            if (await _userManager.IsPhoneNumberConfirmedAsync(user)) tokenProvider = "SMS";
+
+            else tokenProvider = "Email";
+            
+            var token = await _userManager.GenerateTwoFactorTokenAsync(user, tokenProvider);
+
+            string sourceCredential = string.Empty;
+
+            string criptedCredential = string.Empty;
+
+            switch (tokenProvider)
+            {
+                case "SMS":
+                    sourceCredential = user.PhoneNumber;
+                    criptedCredential = _dataHelper.CriptPhone(sourceCredential);
+                    //TODO smshelper
+                    break;
+
+                default:
+                    sourceCredential = user.Email;
+                    criptedCredential = _dataHelper.CriptEmail(sourceCredential);
+                    //TODO emailhelper
+                    break;
+            }
+
+            return Ok( new { message = $"You will receive via {tokenProvider} the OTP on your" + (tokenProvider.Contains("SMS") ? " phone number " : " e-mail address") + $" {criptedCredential} ", DateTime.Now });
         }
 
         #endregion
