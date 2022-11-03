@@ -113,8 +113,8 @@ namespace FGMEmailSenderApp.Controllers
 
         #region CONFERMA REGISTRAZIONE UTENTE
 
-        [AllowAnonymous]
         [HttpPost]
+        [AllowAnonymous]
         [Route("ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmail(string token, string email)
         {
@@ -135,8 +135,8 @@ namespace FGMEmailSenderApp.Controllers
 
         #region RINVIA EMAIL DI CONFERMA
 
-        [AllowAnonymous]
         [HttpPost]
+        [AllowAnonymous]
         [Route("ResendEmailConf")]
         public async Task<IActionResult> ResendEmailConfirmation(string email)
         {
@@ -160,6 +160,7 @@ namespace FGMEmailSenderApp.Controllers
         #region CONTROLLO DI SESSIONE
 
         [HttpGet]
+        [AllowAnonymous]
         [Route("CheckSession")]
         public async Task<IActionResult> CheckSession()
         {
@@ -182,8 +183,8 @@ namespace FGMEmailSenderApp.Controllers
 
         #region LOGIN
 
-        [AllowAnonymous]
         [HttpPost]
+        [AllowAnonymous]
         [Route("Login")]
         
         public async Task<IActionResult> Login(LoginInputModel loginModel)
@@ -270,9 +271,32 @@ namespace FGMEmailSenderApp.Controllers
 
         #endregion
 
-        #region INTERNAL ACTION - GENERATE 2 FACTORY AUTHENTICATION TOKEN AND SEND IT
+        #region LOGOUT
 
-        internal async Task<IActionResult> GenerateToken2FA()
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [HttpGet]
+        [Route("Logout")]
+        public async Task<ActionResult> LogOut()
+        {
+            var userEmail = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
+
+            var user = await _userManager.FindByEmailAsync(userEmail);
+
+            if (user == null) return NotFound();
+
+            await _signInManager.SignOutAsync();
+
+            await HttpContext.SignOutAsync("MyFGMTrasportiIdentity");
+
+            return Ok(new { message = "You successfully logged out", DateTime.Now });
+        }
+
+        #endregion
+
+        #region PRIVATE ACTION - GENERATE 2 FACTORY AUTHENTICATION TOKEN AND SEND IT
+
+        private async Task<IActionResult> GenerateToken2FA()
         {
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
 
@@ -310,9 +334,9 @@ namespace FGMEmailSenderApp.Controllers
 
         #endregion
 
-        #region INTERNAL - CREATING AUTHENTICATION AND AUTHORIZATION COOKIE
+        #region PRIVATE - CREATING AUTHENTICATION AND AUTHORIZATION COOKIE
 
-        internal async Task<IList<string>> CreatingAuthCookie(ApplicationUser user, bool rememberMe)
+        private async Task<IList<string>> CreatingAuthCookie(ApplicationUser user, bool rememberMe)
         {
             var rolesUser = await _userManager.GetRolesAsync(user);
 
