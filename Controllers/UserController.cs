@@ -52,7 +52,9 @@ namespace FGMEmailSenderApp.Controllers
 
             var user = await _userManager.FindByEmailAsync(inputUserModel.EmailUser);
 
-            if (user != null) return BadRequest( new { message = "The email you signed is already used by another user.", DateTime.Now});
+            if (_context.Users.Any(x => x.PhoneNumber.Equals(inputUserModel.PhoneUser))) return BadRequest(new { message = "Your phone is already used by another user", DateTime.Now });
+
+            if (user != null) return BadRequest( new { message = "The email you signed is already used by another user.", DateTime.Now });
 
             if (user != null && await _userManager.IsLockedOutAsync(user)) return BadRequest(new { message = "The email you signed is already used by another user."
                 + " Your account is actually frozen, we suggest you to wait 60 minuts"
@@ -106,18 +108,20 @@ namespace FGMEmailSenderApp.Controllers
 
             ///TODO CREATE EMAIL SERVICE TO SEND THE TOKEN
 
-            return Ok( new { message = "Your sign up was perfectly maded, you will receive e-mail with token for the confirmation.", DateTime.Now });
+            return Ok( new { message = "Your sign up was perfectly maded, you will receive e-mail with token for the confirmation.", user.Email ,DateTime.Now });
         }
 
         #endregion
 
-        #region CONFERMA REGISTRAZIONE UTENTE
+        #region CONFERMA EMAIL
 
         [HttpPost]
         [AllowAnonymous]
         [Route("ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmail(string token, string email)
         {
+            if (token == null || email == null) return StatusCode(406, new { message = "You need to provide the informations", DateTime.Now });
+
             var emailController = new EmailAddressAttribute();
 
             if (emailController.IsValid(email)) return StatusCode(406, new { message = "The information provided is not an email address.", DateTime.Now });
@@ -153,30 +157,6 @@ namespace FGMEmailSenderApp.Controllers
             ///TODO Creare un servizio che invii autonomamente l'email;
             
             return Ok(new { message = $"We send another confirmation link at {email}", DateTime.Now });
-        }
-
-        #endregion
-
-        #region CONTROLLO DI SESSIONE
-
-        [HttpGet]
-        [AllowAnonymous]
-        [Route("CheckSession")]
-        public async Task<IActionResult> CheckSession()
-        {
-            var userEmail = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
-
-            if (userEmail == null) return Unauthorized(new { message = "You are not authenticated.", DateTime.Now });
-
-            var user = await _userManager.FindByEmailAsync(userEmail);
-
-            if (user == null) return Unauthorized( new { message = "You are not authenticated.", DateTime.Now });
-
-            if (user != null && await _userManager.IsLockedOutAsync(user)) return Unauthorized(new { message = "It seems your account is locked out. Try later", DateTime.Now }); 
-
-            var roles = await _userManager.GetRolesAsync(user);
-
-            return Ok(new { message = "You are authenticated.", user.Email, user.NameUser, user.LastNameUser, roles, DateTime.Now });
         }
 
         #endregion
@@ -231,7 +211,7 @@ namespace FGMEmailSenderApp.Controllers
 
         #endregion
 
-        #region POST 2FA TOKEN
+        #region VERIFICA 2FA
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -293,6 +273,157 @@ namespace FGMEmailSenderApp.Controllers
         }
 
         #endregion
+
+        #region CONTROLLO DI SESSIONE
+
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("CheckSession")]
+        public async Task<IActionResult> CheckSession()
+        {
+            var userEmail = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
+
+            if (userEmail == null) return Unauthorized(new { message = "You are not authenticated.", DateTime.Now });
+
+            var user = await _userManager.FindByEmailAsync(userEmail);
+
+            if (user == null) return Unauthorized( new { message = "You are not authenticated.", DateTime.Now });
+
+            if (user != null && await _userManager.IsLockedOutAsync(user)) return Unauthorized(new { message = "It seems your account is locked out. Try later", DateTime.Now }); 
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new { message = "You are authenticated.", user.Email, user.NameUser, user.LastNameUser, roles, DateTime.Now });
+        }
+
+        #endregion
+
+        #region CAMBIA PASSWORD
+
+        [HttpPost]
+        [Authorize]
+        [Route("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+
+            return Ok( new { message = "You have changed successfully the password", DateTime.Now });
+        }
+
+        #endregion
+
+        #region CAMBIA EMAIL
+
+        [HttpPost]
+        [Authorize]
+        [Route("ChangeEmail")]
+        public async Task<IActionResult> ChangeEmail(string oldEmail, string newEmail)
+        {
+            var emailController = new EmailAddressAttribute();
+
+            if (oldEmail == null || newEmail == null) return BadRequest(new { message = "The fields are required", DateTime.Now });
+
+            if (!emailController.IsValid(oldEmail) || !emailController.IsValid(newEmail)) return StatusCode(406, new { message = "The information you provide is not an email address.", DateTime.Now });
+
+            var user = await _userManager.FindByEmailAsync(oldEmail);
+
+            if (user == null) return NotFound(new { message = "the e-mail you inserted is not one of our users", DateTime.Now });
+
+            var userEmailClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+            if (!string.Equals(oldEmail, userEmailClaim)) throw new SecurityException($"The email you are trying to change is not your {DateTime.Now}");
+
+            await _userManager.ChangeEmailAsync(user, oldEmail, newEmail);
+
+            var token = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+
+            var confirmationLink = Url.Link("email-confirmation", new { token, newEmail });
+
+            await _context.SaveChangesAsync();
+
+            //TODO INVIARE TOKEN CON UN EMAIL SENDER
+
+            RedirectToAction("Logout");
+
+            return Ok(new { message = $"You will receive to your {_dataHelper.CriptEmail(newEmail)} a link to conferme the new e-mail provided. Now You automatically being redirect to logout", DateTime.Now });
+        }
+
+        #endregion
+
+        #region CAMBIA NUMERO DI TELEFONO
+
+        [HttpPost]
+        [Authorize]
+        [Route("ChangePhoneNumber")]
+        public async Task<IActionResult> ChangePhoneNumber(string oldPhone, string newPhone)
+        {
+            if (oldPhone == null || newPhone == null) return StatusCode(406, new { message = "The values inserted are null", DateTime.Now });
+
+            if (!oldPhone.Any(x => char.IsDigit(x)) || !newPhone.Any(c => char.IsDigit(c)) || oldPhone.Length != 10 || newPhone.Length != 10) return StatusCode(406, new { message = "The datas you insered are not phone number", DateTime.Now });
+
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (_context.Users.Any(u => u.PhoneNumber.Equals(oldPhone))) return NotFound(new { message = "Your phone is not found", DateTime.Now });
+
+            var userClaimPhone = _context.Users.Where(u => u.PhoneNumber.Equals(oldPhone));
+
+            if (user != userClaimPhone) return BadRequest(new { message = "The phone you inserted is not your", DateTime.Now });
+
+            var token = await _userManager.GenerateChangePhoneNumberTokenAsync(user, newPhone);
+
+            var confirmationLink = Url.Link("phone-confirmation", new { token, newPhone });
+
+            //TODO SMS HELPER
+
+            return Ok(new { message = $"You will receive the OTP to your new {_dataHelper.CriptPhone(newPhone)}", DateTime.Now });
+        }
+
+        #endregion
+
+        #region CONFERMA NUMERO DI TELEFONO
+
+        [HttpPost]
+        [Authorize]
+        [Route("ConfirmPhone")]
+        public async Task<IActionResult> ConfirmPhone(string token, string phone)
+        {
+            if (token == null || phone == null) return StatusCode(406, new { message = "You need to provide the informations", DateTime.Now });
+
+            if (phone.Any(p => char.IsDigit(p))) return StatusCode(406, new { message = "The information provided is not an phone number.", DateTime.Now });
+
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (_context.Users.Any(u => u.PhoneNumber.Equals(phone))) return NotFound(new { message = "Your phone is not found", DateTime.Now });
+
+            var userClaimPhone = _context.Users.Where(u => u.PhoneNumber.Equals(phone));
+
+            if (user != userClaimPhone) return BadRequest(new { message = "The phone you inserted is not your", DateTime.Now });
+
+            var result = await _userManager.VerifyChangePhoneNumberTokenAsync(user, token, phone);
+
+            return (result ? Ok(new { message = $"The {_dataHelper.CriptPhone(phone)} is been confirmed.", DateTime.Now }) : NotFound(new { message = "The token you provide was not found.", DateTime.Now }));
+        }
+
+
+        #endregion
+
+        #region MODIFICA UTENTE
+
+        //TODO
+
+        //attualmente scartato dato che quello che posso modificare sono solo nome e cognome il resto è stato tutto gestito
+
+        #endregion
+
+        //TODO DA FARE PASSWORD DIMENTICATA
 
         #region PRIVATE ACTION - GENERATE 2 FACTORY AUTHENTICATION TOKEN AND SEND IT
 
