@@ -13,6 +13,8 @@ using System.Security;
 using FGMEmailSenderApp.Helpers;
 using Microsoft.AspNetCore.Identity.UI.V4.Pages.Account.Manage.Internal;
 using System.Data;
+using FGMEmailSenderApp.Models.Interfaces;
+using System.Web;
 
 namespace FGMEmailSenderApp.Controllers
 {
@@ -24,14 +26,14 @@ namespace FGMEmailSenderApp.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly DataHelper _dataHelper;
+        private readonly IDataHelper _dataHelper;
 
         public UserController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             ApplicationDbContext context,
             SignInManager<ApplicationUser> signInManager,
-            DataHelper dataHelper
+            IDataHelper dataHelper
         )
         {
             _userManager = userManager;
@@ -40,6 +42,8 @@ namespace FGMEmailSenderApp.Controllers
             _signInManager = signInManager;
             _dataHelper = dataHelper;
         }
+
+        //TODO CONTROLLARE PERCHE' IL TOKEN DI CONFERMA EMAIL VIENE SEMPRE INVALIDATO
 
         #region REGISTRAZIONE NUOVO UTENTE
 
@@ -100,7 +104,7 @@ namespace FGMEmailSenderApp.Controllers
 
             await _userManager.AddToRoleAsync(newUser, role_User);
 
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+            var token = HttpUtility.UrlEncode(await _userManager.GenerateEmailConfirmationTokenAsync(newUser));
 
             var confirmationLink = Url.Link("email-confirmation", new { token, inputUserModel.EmailUser });            
 
@@ -108,55 +112,7 @@ namespace FGMEmailSenderApp.Controllers
 
             ///TODO CREATE EMAIL SERVICE TO SEND THE TOKEN
 
-            return Ok( new { message = "Your sign up was perfectly maded, you will receive e-mail with token for the confirmation.", user.Email ,DateTime.Now });
-        }
-
-        #endregion
-
-        #region CONFERMA EMAIL
-
-        [HttpPost]
-        [AllowAnonymous]
-        [Route("ConfirmEmail")]
-        public async Task<IActionResult> ConfirmEmail(string token, string email)
-        {
-            if (token == null || email == null) return StatusCode(406, new { message = "You need to provide the informations", DateTime.Now });
-
-            var emailController = new EmailAddressAttribute();
-
-            if (emailController.IsValid(email)) return StatusCode(406, new { message = "The information provided is not an email address.", DateTime.Now });
-
-            var user = await _userManager.FindByEmailAsync(email);
-
-            if (user == null) return NotFound( new { message = "The email you provide is not assigned to any users.", DateTime.Now });
-
-            var result = await _userManager.ConfirmEmailAsync(user, token);
-
-            return (result.Succeeded ? Ok(new { message = $"the {email} is been confirmed.", DateTime.Now }) : NotFound(new { message = "The token you provide was not found.", DateTime.Now }));
-        }
-
-        #endregion
-
-        #region RINVIA EMAIL DI CONFERMA
-
-        [HttpPost]
-        [AllowAnonymous]
-        [Route("ResendEmailConf")]
-        public async Task<IActionResult> ResendEmailConfirmation(string email)
-        {
-            var emailController = new EmailAddressAttribute();
-
-            if (!emailController.IsValid(email)) return StatusCode(406, new { message = "The information you provide is not an email address.", DateTime.Now } );
-
-            var user = await _userManager.FindByEmailAsync(email);
-
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-            var confirmationLink = Url.Link("email-confirmation", new { token, email });
-
-            ///TODO Creare un servizio che invii autonomamente l'email;
-            
-            return Ok(new { message = $"We send another confirmation link at {email}", DateTime.Now });
+            return Ok( new { message = "Your sign up was perfectly maded, you will receive e-mail with token for the confirmation.", inputUserModel.EmailUser, DateTime.Now });
         }
 
         #endregion
@@ -190,6 +146,8 @@ namespace FGMEmailSenderApp.Controllers
 
                 return StatusCode(401, new { message = "Wrong email or password", DateTime.Now });
             }
+
+            if (await _userManager.IsEmailConfirmedAsync(user)) return StatusCode(401, new { message = "Your email need to be confirmed before login", DateTime.Now });
 
             if (result.IsLockedOut) return StatusCode(401, new { message = "Your account is been locked out, try to after 1 hour or contact the administrator", DateTime.Now });
 
@@ -386,6 +344,46 @@ namespace FGMEmailSenderApp.Controllers
 
         #endregion
 
+        #region CONFERMA EMAIL
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("ConfirmEmail")]
+        public async Task<IActionResult> ConfirmEmail(string token, string email)
+        {
+            if (token == null || email == null) return StatusCode(406, new { message = "You need to provide the informations", DateTime.Now });
+
+            var emailController = new EmailAddressAttribute();
+
+            if (!emailController.IsValid(email)) return StatusCode(406, new { message = "The information provided is not an email address.", DateTime.Now });
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null) return NotFound( new { message = "The email you provide is not assigned to any users.", DateTime.Now });
+
+            if (user.EmailConfirmed) return StatusCode(401, new { message = "Your email is already confirmed", DateTime.Now });
+
+            var result = await _userManager.ConfirmEmailAsync(user, HttpUtility.UrlDecode(token));
+
+            if (result.Succeeded)
+            {
+                user.EmailConfirmed = true;
+                await _userManager.UpdateAsync(user);
+            }
+
+            return (result.Succeeded ? Ok(new { message = $"the {_dataHelper.CriptEmail(email)} is been confirmed.", DateTime.Now }) : NotFound(new { message = "The token you provide was not found.", DateTime.Now }));
+        }
+
+        #endregion
+
+        #region MODIFICA UTENTE
+
+        //TODO
+
+        //attualmente scartato dato che quello che posso modificare sono solo nome e cognome il resto è stato tutto gestito
+
+        #endregion
+
         #region CONFERMA NUMERO DI TELEFONO
 
         [HttpPost]
@@ -415,11 +413,31 @@ namespace FGMEmailSenderApp.Controllers
 
         #endregion
 
-        #region MODIFICA UTENTE
+        #region RINVIA EMAIL DI CONFERMA
 
-        //TODO
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("ResendEmailConf")]
+        public async Task<IActionResult> ResendEmailConfirmation(string email)
+        {
+            var emailController = new EmailAddressAttribute();
 
-        //attualmente scartato dato che quello che posso modificare sono solo nome e cognome il resto è stato tutto gestito
+            if (!emailController.IsValid(email)) return StatusCode(406, new { message = "The information you provide is not an email address.", DateTime.Now } );
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null) return NotFound(new { message = "You need to signup firts.", DateTime.Now});
+
+            if (user.EmailConfirmed) return StatusCode(401, new { message = "Your email is already confirmed", DateTime.Now });
+
+            var token = HttpUtility.UrlEncode(await _userManager.GenerateEmailConfirmationTokenAsync(user));
+
+            var confirmationLink = Url.Link("email-confirmation", new { token, email });
+
+            ///TODO Creare un servizio che invii autonomamente l'email;
+            
+            return Ok(new { message = $"We send another confirmation link at {_dataHelper.CriptEmail(email)}", DateTime.Now });
+        }
 
         #endregion
 

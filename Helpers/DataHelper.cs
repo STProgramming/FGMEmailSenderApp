@@ -1,30 +1,10 @@
-﻿namespace FGMEmailSenderApp.Helpers
+﻿using FGMEmailSenderApp.Models.Interfaces;
+
+namespace FGMEmailSenderApp.Helpers
 {
-    public class DataHelper
+    public class DataHelper : IDataHelper
     {
-        #region PUBLIC PROPERTIES
-        
-        public string result { get; set; }
-
-        #endregion
-
         #region PUBLIC ACCESS TO DATAHELPER
-        public DataHelper(string data)
-        {
-            result = LightCript(ArrayPushedIndividuallyChar(data));
-        }
-
-        public DataHelper(int data)
-        {
-            result = LightCript(ArrayPushedIndividuallyChar(data.ToString()));
-        }
-
-        public DataHelper(char[] data)
-        {
-            result = LightCript(data);
-        }
-
-        public DataHelper() { }
 
         public string CriptName(string data)
         {
@@ -73,9 +53,7 @@
                 }
             }
 
-            string result = charResult.ToString();
-
-            return result;
+            return ConvertToString(charResult);
 
         }
 
@@ -87,11 +65,11 @@
         {
             char[] charResult = new char[dataEmail.Length];
 
-            int positionAt = this.ReturnPositionAt(dataEmail);
+            IEnumerable<int> positionAt = this.ReturnPositionAt(dataEmail);
             
             for (int i = 0; i< dataEmail.Length; i++)
             {
-                if (i > 1 && i < positionAt) 
+                if (i > 1 && i < positionAt.FirstOrDefault()) 
                 {
                     if (dataEmail[i].Equals('.'))
                     {
@@ -102,11 +80,13 @@
                         charResult[i] = '*';
                     }
                 }
+                else
+                {
+                    charResult[i] = dataEmail[i];
+                }
             }
 
-            string result = charResult.ToString();
-
-            return result;
+            return ConvertToString(charResult);
         }
 
         #endregion
@@ -124,16 +104,28 @@
 
         #region PRIVATE IDENTIFY POSITION OF AT @
 
-        private int ReturnPositionAt(char[] data)
+        private IEnumerable<int> ReturnPositionAt(char[] data)
         {
-            int positionAt = 0;
-
             for(int i = 0; i < data.Length; i++)
             {
-                if (data[i].Equals('@')) positionAt = i;
+                if (data[i].Equals('@')) yield return i;
+            }
+        }
+
+        #endregion
+
+        #region PRIVATE CONVERT TO STRING ARRAY OF CHAR
+
+        private string ConvertToString(char[] data)
+        {
+            string result = String.Empty;
+
+            foreach (char character in data)
+            {
+                result += character;
             }
 
-            return positionAt;
+            return result;
         }
 
         #endregion

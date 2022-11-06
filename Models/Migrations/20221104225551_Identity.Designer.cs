@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FGMEmailSenderApp.Models.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20221029112324_Identity")]
+    [Migration("20221104225551_Identity")]
     partial class Identity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,6 +59,9 @@ namespace FGMEmailSenderApp.Models.Migrations
                     b.Property<string>("NameUser")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("NewsSenderAggrement")
+                        .HasColumnType("bit");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -447,9 +450,11 @@ namespace FGMEmailSenderApp.Models.Migrations
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser", b =>
                 {
-                    b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.Company", null)
+                    b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.Company", "Company")
                         .WithMany("Users")
                         .HasForeignKey("CompanyIdCompany");
+
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.CargoEvent", b =>

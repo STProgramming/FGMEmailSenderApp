@@ -58,6 +58,9 @@ namespace FGMEmailSenderApp.Models.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("NewsSenderAggrement")
+                        .HasColumnType("bit");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -445,9 +448,11 @@ namespace FGMEmailSenderApp.Models.Migrations
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser", b =>
                 {
-                    b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.Company", null)
+                    b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.Company", "Company")
                         .WithMany("Users")
                         .HasForeignKey("CompanyIdCompany");
+
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.CargoEvent", b =>

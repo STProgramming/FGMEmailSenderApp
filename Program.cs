@@ -1,4 +1,6 @@
+using FGMEmailSenderApp.Helpers;
 using FGMEmailSenderApp.Models.EntityFrameworkModels;
+using FGMEmailSenderApp.Models.Interfaces;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -63,6 +65,21 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         builder.Configuration.GetConnectionString("MainDbConnection")
         )
 );
+
+#region CAMBIO DEL CICLO DI VITA TOKEN DI CONFERMA ACCOUNT
+
+builder.Services.Configure<DataProtectionTokenProviderOptions>(option =>
+{
+    option.TokenLifespan = TimeSpan.FromHours(1);
+});
+
+#endregion
+
+#region INSERIMENTO SERVICES
+
+builder.Services.AddTransient<IDataHelper, DataHelper>();
+
+#endregion
 
 var app = builder.Build();
 
