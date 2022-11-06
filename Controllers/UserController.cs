@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Identity.UI.V4.Pages.Account.Manage.Internal;
 using System.Data;
 using FGMEmailSenderApp.Models.Interfaces;
 using System.Web;
+using FGMEmailSenderApp.Models.ViewModels;
 
 namespace FGMEmailSenderApp.Controllers
 {
@@ -104,7 +105,7 @@ namespace FGMEmailSenderApp.Controllers
 
             await _userManager.AddToRoleAsync(newUser, role_User);
 
-            var token = HttpUtility.UrlEncode(await _userManager.GenerateEmailConfirmationTokenAsync(newUser));
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
 
             var confirmationLink = Url.Link("email-confirmation", new { token, inputUserModel.EmailUser });            
 
@@ -146,8 +147,6 @@ namespace FGMEmailSenderApp.Controllers
 
                 return StatusCode(401, new { message = "Wrong email or password", DateTime.Now });
             }
-
-            if (await _userManager.IsEmailConfirmedAsync(user)) return StatusCode(401, new { message = "Your email need to be confirmed before login", DateTime.Now });
 
             if (result.IsLockedOut) return StatusCode(401, new { message = "Your account is been locked out, try to after 1 hour or contact the administrator", DateTime.Now });
 
@@ -261,6 +260,7 @@ namespace FGMEmailSenderApp.Controllers
         [HttpPost]
         [Authorize]
         [Route("ChangePassword")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -317,6 +317,7 @@ namespace FGMEmailSenderApp.Controllers
         [HttpPost]
         [Authorize]
         [Route("ChangePhoneNumber")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePhoneNumber(string oldPhone, string newPhone)
         {
             if (oldPhone == null || newPhone == null) return StatusCode(406, new { message = "The values inserted are null", DateTime.Now });
@@ -361,9 +362,9 @@ namespace FGMEmailSenderApp.Controllers
 
             if (user == null) return NotFound( new { message = "The email you provide is not assigned to any users.", DateTime.Now });
 
-            if (user.EmailConfirmed) return StatusCode(401, new { message = "Your email is already confirmed", DateTime.Now });
+            if (await _userManager.IsEmailConfirmedAsync(user)) return StatusCode(401, new { message = "Your email is already confirmed", DateTime.Now });
 
-            var result = await _userManager.ConfirmEmailAsync(user, HttpUtility.UrlDecode(token));
+            var result = await _userManager.ConfirmEmailAsync(user, token);
 
             if (result.Succeeded)
             {
@@ -376,19 +377,12 @@ namespace FGMEmailSenderApp.Controllers
 
         #endregion
 
-        #region MODIFICA UTENTE
-
-        //TODO
-
-        //attualmente scartato dato che quello che posso modificare sono solo nome e cognome il resto è stato tutto gestito
-
-        #endregion
-
         #region CONFERMA NUMERO DI TELEFONO
 
         [HttpPost]
         [Authorize]
         [Route("ConfirmPhone")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmPhone(string token, string phone)
         {
             if (token == null || phone == null) return StatusCode(406, new { message = "You need to provide the informations", DateTime.Now });
@@ -410,6 +404,14 @@ namespace FGMEmailSenderApp.Controllers
             return (result ? Ok(new { message = $"The {_dataHelper.CriptPhone(phone)} is been confirmed.", DateTime.Now }) : NotFound(new { message = "The token you provide was not found.", DateTime.Now }));
         }
 
+
+        #endregion
+
+        #region MODIFICA UTENTE
+
+        //TODO
+
+        //attualmente scartato dato che quello che posso modificare sono solo nome e cognome il resto è stato tutto gestito
 
         #endregion
 
@@ -437,6 +439,39 @@ namespace FGMEmailSenderApp.Controllers
             ///TODO Creare un servizio che invii autonomamente l'email;
             
             return Ok(new { message = $"We send another confirmation link at {_dataHelper.CriptEmail(email)}", DateTime.Now });
+        }
+
+        #endregion
+
+        #region MOSTRA INFO UTENTE
+
+        [HttpGet]
+        [Authorize]
+        [Route("GetInfoUser")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GetInfoUser()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var user = await _userManager.FindByNameAsync(userId);
+
+            var company = user.Company != null ? _context.Companies.Where(c => String.Equals(c.Users, user.Id)).FirstOrDefault() : null;
+
+            UserViewModel userView = new UserViewModel
+            {
+                Email = user.Email,
+                Name = user.NameUser,
+                LastName = user.LastNameUser,
+                NewsSenderAggrement = user.NewsSenderAggrement,
+                UserName = user.UserName,
+                PhoneNumber = user.PhoneNumber,
+                PhoneConfirmed = user.PhoneNumberConfirmed,
+                TwoFactoryEnabled = user.TwoFactorEnabled,
+                NameCompany = company.CompanyName,
+                IvaCompany = company.CompanyIva
+            };
+
+            return Ok(new { message = "success", userView, DateTime.Now });
         }
 
         #endregion
