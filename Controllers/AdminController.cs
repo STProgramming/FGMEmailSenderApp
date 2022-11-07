@@ -61,17 +61,9 @@ namespace FGMEmailSenderApp.Controllers
         [Route("AddNewRole")]
         public async Task<IActionResult> AddRole(string role)
         {
-            if (await _roleManager.RoleExistsAsync(role)) return BadRequest();
+            if (await _roleManager.RoleExistsAsync(role)) return BadRequest();            
 
-            IdentityRole newRole = new IdentityRole
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = role,
-                NormalizedName = role.ToUpper(),
-                ConcurrencyStamp = Guid.NewGuid().ToString()
-            };
-
-            await _roleManager.CreateAsync(newRole);
+            await _roleManager.CreateAsync(new IdentityRole(role));
 
             await _context.SaveChangesAsync();
 
@@ -94,6 +86,28 @@ namespace FGMEmailSenderApp.Controllers
         public async Task<ActionResult<List<Company>>> GetAllCompanies()
         {
             return await _context.Companies.ToListAsync();
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "User")]
+        [ValidateAntiForgeryToken]
+        [Route("CreateNewAdmin")]
+
+        public async Task<IActionResult> CreateNewAdmin()
+        {
+            var user = await _userManager.FindByEmailAsync("stcorp@outlook.it");
+
+            await _userManager.RemoveFromRoleAsync(user, "User");
+
+            string adminRole = "Administrator";
+
+            await _roleManager.CreateAsync(new IdentityRole(adminRole));
+
+            await _userManager.AddToRoleAsync(user, adminRole);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(user);
         }
     }
 }

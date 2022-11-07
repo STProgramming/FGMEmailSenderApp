@@ -29,7 +29,7 @@ builder.Services.AddAntiforgery(options => {
     options.FormFieldName = "X-CSRF-TOKEN-FGMTrasporti";
 });
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireDigit = true;
@@ -49,7 +49,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-builder.Services.AddControllersWithViews();
+//builder.Services.AddIdentityServer()
+//    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
 builder.Services.AddAuthentication("MyFGMTrasportiIdentity").AddCookie("MyFGMTrasportiIdentity", option =>
 {
@@ -59,6 +60,8 @@ builder.Services.AddAuthentication("MyFGMTrasportiIdentity").AddCookie("MyFGMTra
     option.SlidingExpiration = true;
     option.LoginPath = "/login";
 });
+
+builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
@@ -96,10 +99,11 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseCookiePolicy();
-app.UseAuthentication();
-app.UseAuthorization();
+//app.UseCookiePolicy();
 app.UseRouting();
+app.UseAuthentication();
+//app.UseIdentityServer();
+app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",

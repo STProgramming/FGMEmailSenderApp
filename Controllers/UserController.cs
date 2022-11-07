@@ -79,7 +79,8 @@ namespace FGMEmailSenderApp.Controllers
                 LastNameUser = inputUserModel.LastNameUser,
                 UserName = $"{inputUserModel.NameUser}.{inputUserModel.LastNameUser}",
                 Email = inputUserModel.EmailUser,
-                PhoneNumber = inputUserModel.PhoneUser
+                PhoneNumber = inputUserModel.PhoneUser,
+                EmailConfirmed = true
             };
 
             string role_User = "User";
@@ -453,7 +454,7 @@ namespace FGMEmailSenderApp.Controllers
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            var user = await _userManager.FindByNameAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId);
 
             var company = user.Company != null ? _context.Companies.Where(c => String.Equals(c.Users, user.Id)).FirstOrDefault() : null;
 
@@ -467,8 +468,8 @@ namespace FGMEmailSenderApp.Controllers
                 PhoneNumber = user.PhoneNumber,
                 PhoneConfirmed = user.PhoneNumberConfirmed,
                 TwoFactoryEnabled = user.TwoFactorEnabled,
-                NameCompany = company.CompanyName,
-                IvaCompany = company.CompanyIva
+                NameCompany = company == null ? String.Empty : company.CompanyName,
+                IvaCompany = company == null ? String.Empty : company.CompanyIva
             };
 
             return Ok(new { message = "success", userView, DateTime.Now });
