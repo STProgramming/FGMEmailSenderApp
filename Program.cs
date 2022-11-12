@@ -1,9 +1,12 @@
 using FGMEmailSenderApp.Helpers;
 using FGMEmailSenderApp.Models.EntityFrameworkModels;
 using FGMEmailSenderApp.Models.Interfaces;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,12 +19,15 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
     options.JsonSerializerOptions.WriteIndented = true;
 });
 
-builder.Services.Configure<CookiePolicyOptions>(options =>
-{
-    options.CheckConsentNeeded = context => true;
-    options.MinimumSameSitePolicy = SameSiteMode.None;
-    options.HttpOnly = HttpOnlyPolicy.Always;
-});
+//PER ORA INUTILE LA SPECIFICA DATO CHE NON SI USANO LE POLICY
+//builder.Services.Configure<CookiePolicyOptions>(options =>
+//{
+//    options.CheckConsentNeeded = context => true;
+//    options.MinimumSameSitePolicy = SameSiteMode.None;
+//    options.HttpOnly = HttpOnlyPolicy.Always;
+//});
+
+#region PREVENZIONE AL CSFR
 
 builder.Services.AddAntiforgery(options => {
     options.Cookie.Name = "X-CSRF-TOKEN-FGMTrasporti";
@@ -29,7 +35,31 @@ builder.Services.AddAntiforgery(options => {
     options.FormFieldName = "X-CSRF-TOKEN-FGMTrasporti";
 });
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+#endregion
+
+#region CONFIGURAZIONE AL COOKIE DI AUTENTICAZIONE
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+});
+
+builder.Services.ConfigureApplicationCookie(option =>
+{
+    option.Cookie.Name = "MyFGMTrasportiIdentity";
+    option.Cookie.HttpOnly = true;
+    option.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    option.ExpireTimeSpan = TimeSpan.FromDays(2);
+    option.SlidingExpiration = true;
+    option.LoginPath = "/Identity/User/Login";
+    option.LogoutPath = "/Identity/User/Logout";
+    option.ReturnUrlParameter = "/";
+});
+
+#endregion
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireDigit = true;
@@ -45,29 +75,34 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     options.SignIn.RequireConfirmedEmail = true;
     options.User.RequireUniqueEmail = true;
 })
-.AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+//DA ERRORE ADD IDENTITY SERVER DA STUDIARE
 //builder.Services.AddIdentityServer()
 //    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
-builder.Services.AddAuthentication("MyFGMTrasportiIdentity").AddCookie("MyFGMTrasportiIdentity", option =>
-{
-    option.Cookie.Name = "MyFGMTrasportiIdentity";
-    option.Cookie.HttpOnly = true;
-    option.ExpireTimeSpan = System.TimeSpan.FromDays(2);
-    option.SlidingExpiration = true;
-    option.LoginPath = "/login";
-});
+//builder.Services.AddAuthentication("MyFGMTrasportiIdentity").AddCookie("MyFGMTrasportiIdentity", option =>
+//{
+//    option.Cookie.Name = "MyFGMTrasportiIdentity";
+//    option.Cookie.HttpOnly = true;
+//    option.ExpireTimeSpan = System.TimeSpan.FromDays(2);
+//    option.SlidingExpiration = true;
+//    option.LoginPath = "/Identity/User/Login";
+//    option.LogoutPath = "/Identity/User/Logout";
+//});
 
 builder.Services.AddControllersWithViews();
+
+#region CONNESSIONE AL DATABASE SQL
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("MainDbConnection")
         )
 );
+
+#endregion
 
 #region CAMBIO DEL CICLO DI VITA TOKEN DI CONFERMA ACCOUNT
 
@@ -99,10 +134,8 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-//app.UseCookiePolicy();
 app.UseRouting();
 app.UseAuthentication();
-//app.UseIdentityServer();
 app.UseAuthorization();
 
 app.MapControllerRoute(

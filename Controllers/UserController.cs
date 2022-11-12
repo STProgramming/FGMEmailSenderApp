@@ -456,6 +456,8 @@ namespace FGMEmailSenderApp.Controllers
 
             var user = await _userManager.FindByIdAsync(userId);
 
+            if (user == null) throw new SecurityException("You are not allowed " + DateTime.Now);
+
             var company = user.Company != null ? _context.Companies.Where(c => String.Equals(c.Users, user.Id)).FirstOrDefault() : null;
 
             UserViewModel userView = new UserViewModel
