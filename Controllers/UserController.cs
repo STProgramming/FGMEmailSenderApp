@@ -410,9 +410,36 @@ namespace FGMEmailSenderApp.Controllers
 
         #region MODIFICA UTENTE
 
-        //TODO
+        [HttpPut]
+        [Authorize]
+        [Route("EditUser")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditUser(EditUserInputModel updateUser)
+        {
+            if (!ModelState.IsValid) return StatusCode(406, $"The informations you inserted are not valid, {DateTime.Now}");
 
-        //attualmente scartato dato che quello che posso modificare sono solo nome e cognome il resto è stato tutto gestito
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null) throw new SecurityException($"You are not allowed, {DateTime.Now}");
+
+            ApplicationUser updUser = new ApplicationUser
+            {
+                UserName = updateUser.UserName,
+                NameUser = updateUser.NameUser,
+                LastNameUser = updateUser.LastNameUser,
+                TwoFactorEnabled = updateUser.TwoFactAuth,
+                //Agreement ignoranteeeeee
+                NewsSenderAggrement = updateUser.NewsSenderAgreement
+            };
+
+            await _userManager.UpdateAsync(updUser);
+
+            await _context.SaveChangesAsync();
+
+            return Ok( new { message = ""})
+        }
 
         #endregion
 

@@ -19,14 +19,6 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
     options.JsonSerializerOptions.WriteIndented = true;
 });
 
-//PER ORA INUTILE LA SPECIFICA DATO CHE NON SI USANO LE POLICY
-//builder.Services.Configure<CookiePolicyOptions>(options =>
-//{
-//    options.CheckConsentNeeded = context => true;
-//    options.MinimumSameSitePolicy = SameSiteMode.None;
-//    options.HttpOnly = HttpOnlyPolicy.Always;
-//});
-
 #region PREVENZIONE AL CSFR
 
 builder.Services.AddAntiforgery(options => {
@@ -39,27 +31,27 @@ builder.Services.AddAntiforgery(options => {
 
 #region CONFIGURAZIONE AL COOKIE DI AUTENTICAZIONE
 
-builder.Services.AddAuthentication(options =>
+builder.Services.Configure<CookiePolicyOptions>(options => 
 {
-    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.CheckConsentNeeded = context => true;
+    options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 
-builder.Services.ConfigureApplicationCookie(option =>
-{
-    option.Cookie.Name = "MyFGMTrasportiIdentity";
-    option.Cookie.HttpOnly = true;
-    option.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    option.ExpireTimeSpan = TimeSpan.FromDays(2);
-    option.SlidingExpiration = true;
-    option.LoginPath = "/Identity/User/Login";
-    option.LogoutPath = "/Identity/User/Logout";
-    option.ReturnUrlParameter = "/";
+builder.Services.AddAuthentication("MyFGMTrasportiIdentity").AddCookie("MyFGMTrasportiIdentity", option =>
+   {
+        option.Cookie.Name = "MyFGMTrasportiIdentity";
+        option.Cookie.HttpOnly = true;
+        option.ExpireTimeSpan = System.TimeSpan.FromDays(2);
+        option.SlidingExpiration = true;
+        option.LoginPath = "/Identity/User/Login";
+        option.LogoutPath = "/Identity/User/Logout";
+        option.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+        option.SlidingExpiration = true;
 });
 
 #endregion
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireDigit = true;
@@ -73,24 +65,11 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.SignIn.RequireConfirmedAccount = true;
     options.SignIn.RequireConfirmedEmail = true;
-    options.User.RequireUniqueEmail = true;
+    options.User.RequireUniqueEmail = true;    
 })
+.AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
-
-//DA ERRORE ADD IDENTITY SERVER DA STUDIARE
-//builder.Services.AddIdentityServer()
-//    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
-
-//builder.Services.AddAuthentication("MyFGMTrasportiIdentity").AddCookie("MyFGMTrasportiIdentity", option =>
-//{
-//    option.Cookie.Name = "MyFGMTrasportiIdentity";
-//    option.Cookie.HttpOnly = true;
-//    option.ExpireTimeSpan = System.TimeSpan.FromDays(2);
-//    option.SlidingExpiration = true;
-//    option.LoginPath = "/Identity/User/Login";
-//    option.LogoutPath = "/Identity/User/Logout";
-//});
 
 builder.Services.AddControllersWithViews();
 
@@ -133,7 +112,21 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions()
+{
+    HttpsCompression = Microsoft.AspNetCore.Http.Features.HttpsCompressionMode.Compress,
+    OnPrepareResponse = (context) =>
+    {
+        var headers = context.Context.Response.GetTypedHeaders();
+        headers.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue
+        {
+            Public = true,
+            MaxAge = TimeSpan.FromDays(7)
+        };
+        headers.Expires = DateTime.UtcNow.AddDays(7);
+    }
+});
+app.UseCookiePolicy();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
