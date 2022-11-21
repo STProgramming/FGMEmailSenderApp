@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +38,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 
-builder.Services.AddAuthentication("MyFGMTrasportiIdentity").AddCookie("MyFGMTrasportiIdentity", option =>
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(option =>
    {
         option.Cookie.Name = "MyFGMTrasportiIdentity";
         option.Cookie.HttpOnly = true;
@@ -51,7 +52,7 @@ builder.Services.AddAuthentication("MyFGMTrasportiIdentity").AddCookie("MyFGMTra
 
 #endregion
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireDigit = true;
@@ -70,8 +71,6 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
-
-builder.Services.AddControllersWithViews();
 
 #region CONNESSIONE AL DATABASE SQL
 
@@ -126,7 +125,6 @@ app.UseStaticFiles(new StaticFileOptions()
         headers.Expires = DateTime.UtcNow.AddDays(7);
     }
 });
-app.UseCookiePolicy();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

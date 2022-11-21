@@ -16,6 +16,7 @@ using System.Data;
 using FGMEmailSenderApp.Models.Interfaces;
 using System.Web;
 using FGMEmailSenderApp.Models.ViewModels;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace FGMEmailSenderApp.Controllers
 {
@@ -438,7 +439,7 @@ namespace FGMEmailSenderApp.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok( new { message = ""})
+            return Ok( new { message = "Your user has been update", DateTime.Now });
         }
 
         #endregion
@@ -555,23 +556,27 @@ namespace FGMEmailSenderApp.Controllers
             var rolesUser = await _userManager.GetRolesAsync(user);
 
             var claims = new List<Claim>()
-                {
-                    new Claim(ClaimTypes.Name, user.NameUser),
-                    new Claim(ClaimTypes.Surname, user.LastNameUser),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id)
-                };
+            {
+                new Claim(ClaimTypes.Name, user.NameUser),
+                new Claim(ClaimTypes.Surname, user.LastNameUser),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
+            };
 
             foreach (var role in rolesUser)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
-            var identity = new ClaimsIdentity(claims, "MyFGMTrasportiIdentity");
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
             var claimsPrincipal = new ClaimsPrincipal(identity);
 
-            await HttpContext.SignInAsync("MyFGMTrasportiIdentity", claimsPrincipal, new AuthenticationProperties()
+            //https://www.youtube.com/watch?v=kFwdiZ6Z1J0
+
+            var prop = new AuthenticationProperties();
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, new AuthenticationProperties()
             {
                 IsPersistent = rememberMe,
             });

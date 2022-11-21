@@ -5,7 +5,6 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext() : base() { }
         public ApplicationDbContext(DbContextOptions options) : base(options) { }
         public DbSet<Cargo> Cargos { get; set; }
         public DbSet<CargoEvent> CargoEvents { get; set; }
