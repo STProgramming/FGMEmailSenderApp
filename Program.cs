@@ -23,9 +23,9 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 #region PREVENZIONE AL CSFR
 
 builder.Services.AddAntiforgery(options => {
-    options.Cookie.Name = "X-CSRF-TOKEN-FGMTrasporti";
-    options.HeaderName = "X-CSRF-TOKEN-FGMTrasporti";
-    options.FormFieldName = "X-CSRF-TOKEN-FGMTrasporti";
+    options.Cookie.Name = "X-CSRF-TOKEN-FGMIdentity";
+    options.HeaderName = "X-CSRF-TOKEN-FGMIdentity";
+    options.FormFieldName = "X-CSRF-TOKEN-FGMIdentity";
 });
 
 #endregion
@@ -38,9 +38,9 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(option =>
+builder.Services.AddAuthentication("MyFGMIdentity").AddCookie("MyFGMIdentity", option =>
    {
-        option.Cookie.Name = "MyFGMTrasportiIdentity";
+        option.Cookie.Name = "MyFGMIdentity";
         option.Cookie.HttpOnly = true;
         option.ExpireTimeSpan = System.TimeSpan.FromDays(2);
         option.SlidingExpiration = true;
@@ -52,7 +52,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 #endregion
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireDigit = true;

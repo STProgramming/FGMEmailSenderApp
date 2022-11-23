@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace FGMEmailSenderApp.Controllers
 {
-    [Route("Identity/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -226,7 +226,7 @@ namespace FGMEmailSenderApp.Controllers
 
             await _signInManager.SignOutAsync();
 
-            await HttpContext.SignOutAsync("MyFGMTrasportiIdentity");
+            await HttpContext.SignOutAsync("MyFGMIdentity");
 
             return Ok(new { message = "You successfully logged out", DateTime.Now });
         }
@@ -568,15 +568,11 @@ namespace FGMEmailSenderApp.Controllers
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var identity = new ClaimsIdentity(claims, "MyFGMIdentity");
 
             var claimsPrincipal = new ClaimsPrincipal(identity);
 
-            //https://www.youtube.com/watch?v=kFwdiZ6Z1J0
-
-            var prop = new AuthenticationProperties();
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, new AuthenticationProperties()
+            await HttpContext.SignInAsync("MyFGMIdentity", claimsPrincipal, new AuthenticationProperties()
             {
                 IsPersistent = rememberMe,
             });
