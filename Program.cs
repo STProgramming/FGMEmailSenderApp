@@ -4,10 +4,12 @@ using FGMEmailSenderApp.Models.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
+using static IdentityModel.ClaimComparer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,9 +25,9 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 #region PREVENZIONE AL CSFR
 
 builder.Services.AddAntiforgery(options => {
-    options.Cookie.Name = "X-CSRF-TOKEN-FGMIdentity";
-    options.HeaderName = "X-CSRF-TOKEN-FGMIdentity";
-    options.FormFieldName = "X-CSRF-TOKEN-FGMIdentity";
+    options.Cookie.Name = "X-CSRF-TOKEN-MyFGMIdentity";
+    options.HeaderName = "X-CSRF-TOKEN-MyFGMIdentity";
+    options.FormFieldName = "X-CSRF-TOKEN-MyFGMIdentity";
 });
 
 #endregion
@@ -38,7 +40,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 
-builder.Services.AddAuthentication("MyFGMIdentity").AddCookie("MyFGMIdentity", option =>
+builder.Services.ConfigureApplicationCookie(option =>
    {
         option.Cookie.Name = "MyFGMIdentity";
         option.Cookie.HttpOnly = true;
@@ -52,7 +54,7 @@ builder.Services.AddAuthentication("MyFGMIdentity").AddCookie("MyFGMIdentity", o
 
 #endregion
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireDigit = true;
@@ -68,7 +70,6 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     options.SignIn.RequireConfirmedEmail = true;
     options.User.RequireUniqueEmail = true;    
 })
-.AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
@@ -125,6 +126,7 @@ app.UseStaticFiles(new StaticFileOptions()
         headers.Expires = DateTime.UtcNow.AddDays(7);
     }
 });
+app.UseCookiePolicy();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

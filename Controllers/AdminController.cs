@@ -28,9 +28,8 @@ namespace FGMEmailSenderApp.Controllers
             _context = context;
         }
 
-        [HttpPut]
         [Authorize(Roles = "Administrator")]
-        [ValidateAntiForgeryToken]
+        [HttpPut]
         [Route("PromoteUserAtRole")]
         public async Task<IActionResult> PromoteUserAtRole(string email, string role)
         {
@@ -55,9 +54,8 @@ namespace FGMEmailSenderApp.Controllers
             return Ok(user);
         }
 
-        [HttpPost]
         [Authorize(Roles = "Administrator")]
-        [ValidateAntiForgeryToken]
+        [HttpPost]
         [Route("AddNewRole")]
         public async Task<IActionResult> AddRole(string role)
         {
@@ -70,27 +68,24 @@ namespace FGMEmailSenderApp.Controllers
             return Ok( await _roleManager.FindByNameAsync(role));
         }
 
-        [HttpGet]
         [Authorize(Roles = "Administrator")]
-        [ValidateAntiForgeryToken]
+        [HttpGet]
         [Route("GetAllUsers")]
         public async Task<ActionResult<List<ApplicationUser>>> GetAllUsers()
         {
             return await _context.Users.ToListAsync();
         }
 
-        [HttpGet]
         [Authorize(Roles = "Administrator")]
-        [ValidateAntiForgeryToken]
+        [HttpGet]
         [Route("GetAllCompanies")]
         public async Task<ActionResult<List<Company>>> GetAllCompanies()
         {
             return await _context.Companies.ToListAsync();
         }
 
-        [HttpGet]
         [Authorize(Roles = "User")]
-        [ValidateAntiForgeryToken]
+        [HttpGet]
         [Route("CreateNewAdmin")]
 
         public async Task<IActionResult> CreateNewAdmin()

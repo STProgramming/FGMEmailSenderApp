@@ -17,10 +17,11 @@ using FGMEmailSenderApp.Models.Interfaces;
 using System.Web;
 using FGMEmailSenderApp.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using NuGet.Protocol.Plugins;
 
 namespace FGMEmailSenderApp.Controllers
 {
-    [Route("[controller]")]
+    [Route("Identity/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -49,10 +50,10 @@ namespace FGMEmailSenderApp.Controllers
 
         #region REGISTRAZIONE NUOVO UTENTE
 
-        [HttpPost]
         [AllowAnonymous]
+        [HttpPost]
         [Route("SignUp")]
-        public async Task<IActionResult> SignUp(RegistrationInputModel inputUserModel)
+        public async Task<IActionResult> SignUp([FromBody]RegistrationInputModel inputUserModel)
         {
             if (!ModelState.IsValid) return StatusCode(406, new { message = "The information you inserted are not aceptable for signing up an user.", DateTime.Now });
 
@@ -72,6 +73,8 @@ namespace FGMEmailSenderApp.Controllers
                 + " It's look like you need to confirm the email verification by click to the link that we send to your email.",
                 DateTime.Now
             });
+
+            //EmailConfirmed = true, hardcodata per evitare problemi in fase di test
 
             var newUser = new ApplicationUser
             {
@@ -122,11 +125,11 @@ namespace FGMEmailSenderApp.Controllers
 
         #region LOGIN
 
-        [HttpPost]
         [AllowAnonymous]
+        [HttpPost]
         [Route("Login")]
         
-        public async Task<IActionResult> Login(LoginInputModel loginModel)
+        public async Task<IActionResult> Login([FromBody]LoginInputModel loginModel)
         {
             if (!ModelState.IsValid) return StatusCode(406, new { message = "Invalid email or password.", DateTime.Now});
 
@@ -139,7 +142,19 @@ namespace FGMEmailSenderApp.Controllers
                 return StatusCode(401, new { message = "Wrong email or password.", DateTime.Now });
             }
 
-            if (_signInManager.IsSignedIn(User)) return BadRequest(new { message = "You are already logged in.", DateTime.Now });
+            if (_signInManager.IsSignedIn(User)) 
+            {
+                var emailUserLoggedIn = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+                if (String.Equals(emailUserLoggedIn, loginModel.Email)) return BadRequest(new { message = "You are already logged in.", DateTime.Now });
+
+                else
+                {
+                    RedirectToAction("Logout");
+
+                    return Ok( new { message = "Before your login, the app found a session open with another account. Right now we have disconnected the previous user. Please try to log in now", DateTime.Now });
+                }
+            };
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginModel.Password, loginModel.RememberMe);
 
@@ -162,7 +177,7 @@ namespace FGMEmailSenderApp.Controllers
             }
             else
             {
-                var roles = await CreatingAuthCookie(user, loginModel.RememberMe);
+                var roles = await UserSignIn(user, loginModel.RememberMe);
 
                 return Ok(new { message = "success", user.Email, user.NameUser, user.LastNameUser, roles, DateTime.Now });
             }
@@ -172,9 +187,8 @@ namespace FGMEmailSenderApp.Controllers
 
         #region VERIFICA 2FA
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         [AllowAnonymous]
+        [HttpPost]
         [Route("Verify2FA")]
         public async Task<IActionResult> Verify2FA(string codeToken, bool rememberMe = false)
         {
@@ -203,7 +217,7 @@ namespace FGMEmailSenderApp.Controllers
 
             if (result.IsNotAllowed) return StatusCode(401, new { message = "Your account is not allowed to log in anymore. Try to contact the administrator.", DateTime.Now });
 
-            var roles = await CreatingAuthCookie(user, rememberMe);
+            var roles = await UserSignIn(user, rememberMe);
 
             return Ok(new { message = "success", user.Email, user.NameUser, user.LastNameUser, roles, DateTime.Now });
         }
@@ -213,7 +227,6 @@ namespace FGMEmailSenderApp.Controllers
         #region LOGOUT
 
         [Authorize]
-        [ValidateAntiForgeryToken]
         [HttpGet]
         [Route("Logout")]
         public async Task<ActionResult> LogOut()
@@ -235,8 +248,8 @@ namespace FGMEmailSenderApp.Controllers
 
         #region CONTROLLO DI SESSIONE
 
-        [HttpGet]
         [AllowAnonymous]
+        [HttpGet]
         [Route("CheckSession")]
         public async Task<IActionResult> CheckSession()
         {
@@ -259,10 +272,9 @@ namespace FGMEmailSenderApp.Controllers
 
         #region CAMBIA PASSWORD
 
-        [HttpPost]
         [Authorize]
+        [HttpPost]
         [Route("ChangePassword")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -278,8 +290,8 @@ namespace FGMEmailSenderApp.Controllers
 
         #region CAMBIA EMAIL
 
-        [HttpPost]
         [Authorize]
+        [HttpPost]
         [Route("ChangeEmail")]
         public async Task<IActionResult> ChangeEmail(string oldEmail, string newEmail)
         {
@@ -316,10 +328,9 @@ namespace FGMEmailSenderApp.Controllers
 
         #region CAMBIA NUMERO DI TELEFONO
 
-        [HttpPost]
         [Authorize]
+        [HttpPost]
         [Route("ChangePhoneNumber")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePhoneNumber(string oldPhone, string newPhone)
         {
             if (oldPhone == null || newPhone == null) return StatusCode(406, new { message = "The values inserted are null", DateTime.Now });
@@ -349,8 +360,8 @@ namespace FGMEmailSenderApp.Controllers
 
         #region CONFERMA EMAIL
 
-        [HttpPost]
         [AllowAnonymous]
+        [HttpPost]
         [Route("ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmail(string token, string email)
         {
@@ -381,10 +392,9 @@ namespace FGMEmailSenderApp.Controllers
 
         #region CONFERMA NUMERO DI TELEFONO
 
-        [HttpPost]
         [Authorize]
+        [HttpPost]
         [Route("ConfirmPhone")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmPhone(string token, string phone)
         {
             if (token == null || phone == null) return StatusCode(406, new { message = "You need to provide the informations", DateTime.Now });
@@ -411,10 +421,9 @@ namespace FGMEmailSenderApp.Controllers
 
         #region MODIFICA UTENTE
 
-        [HttpPut]
         [Authorize]
+        [HttpPut]
         [Route("EditUser")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUser(EditUserInputModel updateUser)
         {
             if (!ModelState.IsValid) return StatusCode(406, $"The informations you inserted are not valid, {DateTime.Now}");
@@ -446,8 +455,8 @@ namespace FGMEmailSenderApp.Controllers
 
         #region RINVIA EMAIL DI CONFERMA
 
-        [HttpGet]
         [AllowAnonymous]
+        [HttpGet]
         [Route("ResendEmailConf")]
         public async Task<IActionResult> ResendEmailConfirmation(string email)
         {
@@ -474,10 +483,9 @@ namespace FGMEmailSenderApp.Controllers
 
         #region MOSTRA INFO UTENTE
 
-        [HttpGet]
         [Authorize]
+        [HttpGet]
         [Route("GetInfoUser")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetInfoUser()
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -549,33 +557,13 @@ namespace FGMEmailSenderApp.Controllers
 
         #endregion
 
-        #region PRIVATE - CREATING AUTHENTICATION AND AUTHORIZATION COOKIE
+        #region PRIVATE - SIGN IN USER COOKIE AUTHENTICATION
 
-        private async Task<IList<string>> CreatingAuthCookie(ApplicationUser user, bool rememberMe)
+        private async Task<IList<string>> UserSignIn(ApplicationUser user, bool rememberMe)
         {
             var rolesUser = await _userManager.GetRolesAsync(user);
 
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, user.NameUser),
-                new Claim(ClaimTypes.Surname, user.LastNameUser),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
-            };
-
-            foreach (var role in rolesUser)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            var identity = new ClaimsIdentity(claims, "MyFGMIdentity");
-
-            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-            await HttpContext.SignInAsync("MyFGMIdentity", claimsPrincipal, new AuthenticationProperties()
-            {
-                IsPersistent = rememberMe,
-            });
+            await _signInManager.SignInAsync(user, rememberMe);
 
             return rolesUser;
         }

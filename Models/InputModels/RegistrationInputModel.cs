@@ -20,6 +20,8 @@ namespace FGMEmailSenderApp.Models.InputModels
 
         [Required]
         [RegularExpression("^[0-9]*$", ErrorMessage = "Questo campo deve contenere solo numeri")]
+        [MinLength(9, ErrorMessage = "Il numero di telefono inserito non e' corretto")]
+        [MaxLength(11, ErrorMessage = "Il numero di telefono inserito non e' corretto")]
         public string PhoneUser { get; set; }
 
         [Required]
