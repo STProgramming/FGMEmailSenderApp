@@ -43,7 +43,7 @@ namespace FGMEmailSenderApp.Helpers
 
             for (int i = 0; i < data.Length; i++)
             {
-                if (i < positionLast2Char)
+                if (i < positionLast2Char && i > 0)
                 {
                     charResult[i] = '*';
                 }

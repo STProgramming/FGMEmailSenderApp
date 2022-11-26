@@ -4,15 +4,13 @@ using RequiredAttribute = System.ComponentModel.DataAnnotations.RequiredAttribut
 
 namespace FGMEmailSenderApp.Models.InputModels
 {
-    public class LoginInputModel
+    public class ConfirmEmailInputModel
     {
         [Required]
+        public string Token { get; set; }
+
+        [Required]
+        [EmailAddress]
         public string Email { get; set; }
-
-        [Required]
-        public string Password { get; set; }
-
-        [Required]
-        public bool RememberMe { get; set; }
     }
 }

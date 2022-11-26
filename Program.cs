@@ -15,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+//TODO AUTO VALIDATE ANTI FORGERY TOKEN 
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddControllersWithViews().AddJsonOptions(options =>
@@ -54,6 +55,8 @@ builder.Services.ConfigureApplicationCookie(option =>
 
 #endregion
 
+#region ADD IDENTITY
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
@@ -72,6 +75,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
+
+#endregion
 
 #region CONNESSIONE AL DATABASE SQL
 
@@ -95,6 +100,10 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(option =>
 #region INSERIMENTO SERVICES
 
 builder.Services.AddTransient<IDataHelper, DataHelper>();
+
+#endregion
+
+#region POLICIES
 
 #endregion
 

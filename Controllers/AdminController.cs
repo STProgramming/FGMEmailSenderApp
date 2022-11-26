@@ -8,8 +8,7 @@ using System.Data.Entity;
 
 namespace FGMEmailSenderApp.Controllers
 {
-    [Authorize(Roles = "Administrator")]
-    [Route("Seed/api/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase
     {

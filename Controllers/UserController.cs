@@ -18,6 +18,7 @@ using System.Web;
 using FGMEmailSenderApp.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using NuGet.Protocol.Plugins;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace FGMEmailSenderApp.Controllers
 {
@@ -47,6 +48,10 @@ namespace FGMEmailSenderApp.Controllers
         }
 
         //TODO CONTROLLARE PERCHE' IL TOKEN DI CONFERMA EMAIL VIENE SEMPRE INVALIDATO
+        //TODO CREARE L'AZIONE CHE TI PERMETTE DI GENERARE ED INVIARE IL TOKEN DI CONFERMA DEL NUMERO DI TELEFONO
+        //TODO CREARE L'AZIONE DI RINVIO TOKEN DI CONFERMA DEL CELLULARE
+        //TODO CREARE L'AZIONE CHE TI PERMETTE DI GENERARE IL TOKEN 2FA CON LA SCELTA DEL CANALE DI COMUNICAZIONE IN CUI SI VUOLE L'INVIO
+        //TODO DA FARE PASSWORD DIMENTICATA
 
         #region REGISTRAZIONE NUOVO UTENTE
 
@@ -84,7 +89,6 @@ namespace FGMEmailSenderApp.Controllers
                 UserName = $"{inputUserModel.NameUser}.{inputUserModel.LastNameUser}",
                 Email = inputUserModel.EmailUser,
                 PhoneNumber = inputUserModel.PhoneUser,
-                EmailConfirmed = true
             };
 
             string role_User = "User";
@@ -127,13 +131,29 @@ namespace FGMEmailSenderApp.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        [Route("Login")]
-        
+        [Route("Login")]   
         public async Task<IActionResult> Login([FromBody]LoginInputModel loginModel)
         {
             if (!ModelState.IsValid) return StatusCode(406, new { message = "Invalid email or password.", DateTime.Now});
 
-            var user = await _userManager.FindByEmailAsync(loginModel.Email);
+            var user = new ApplicationUser();
+
+            switch (CheckEmailOrPhone(loginModel.Email))
+            {
+                case 1:
+                    user = await _userManager.FindByEmailAsync(loginModel.Email);
+                    break;
+
+                case 2:
+                    user = _context.Users.Where(u => u.PhoneNumber.Equals(loginModel.Email)).FirstOrDefault();
+                    if (user != null)
+                    {
+                        if (!user.PhoneNumberConfirmed) return BadRequest(new { message = $"Dear {_dataHelper.CriptName(user.NameUser)}, for login with phone number is necessary to confirm that. Until your phone is not confirmed, you can't procede by login using it.", DateTime.Now });
+                    }
+                    break;
+                default:
+                    return NotFound(new { message = "Wrong email or password.", DateTime.Now });
+            }
 
             if (user == null || await _userManager.CheckPasswordAsync(user, loginModel.Password) == false)
             {
@@ -150,7 +170,7 @@ namespace FGMEmailSenderApp.Controllers
 
                 else
                 {
-                    RedirectToAction("Logout");
+                    await LogOut();
 
                     return Ok( new { message = "Before your login, the app found a session open with another account. Right now we have disconnected the previous user. Please try to log in now", DateTime.Now });
                 }
@@ -169,9 +189,9 @@ namespace FGMEmailSenderApp.Controllers
 
             if (result.IsNotAllowed) return StatusCode(401, new { message = "Your account is not allowed to log in anymore. Try to contact the administrator.", DateTime.Now });
 
-            if (result.RequiresTwoFactor)
+            if (user.TwoFactorEnabled && user.PhoneNumberConfirmed)
             {
-                await GenerateToken2FA();
+                await GenerateToken2FA(user);
 
                 return Ok(new { message = $"success = {result}, We send you the Two Factory Authentication token to your e-mail or your phone cell.", DateTime.Now });
             }
@@ -239,8 +259,6 @@ namespace FGMEmailSenderApp.Controllers
 
             await _signInManager.SignOutAsync();
 
-            await HttpContext.SignOutAsync("MyFGMIdentity");
-
             return Ok(new { message = "You successfully logged out", DateTime.Now });
         }
 
@@ -250,8 +268,8 @@ namespace FGMEmailSenderApp.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        [Route("CheckSession")]
-        public async Task<IActionResult> CheckSession()
+        [Route("CheckAuth")]
+        public async Task<IActionResult> CheckAuthentication()
         {
             var userEmail = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
 
@@ -363,21 +381,17 @@ namespace FGMEmailSenderApp.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("ConfirmEmail")]
-        public async Task<IActionResult> ConfirmEmail(string token, string email)
+        public async Task<IActionResult> ConfirmEmail(ConfirmEmailInputModel confirmation)
         {
-            if (token == null || email == null) return StatusCode(406, new { message = "You need to provide the informations", DateTime.Now });
+            if (!ModelState.IsValid) return StatusCode(406, new { message = "You need to provide the informations", DateTime.Now });
 
-            var emailController = new EmailAddressAttribute();
-
-            if (!emailController.IsValid(email)) return StatusCode(406, new { message = "The information provided is not an email address.", DateTime.Now });
-
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByEmailAsync(confirmation.Email);
 
             if (user == null) return NotFound( new { message = "The email you provide is not assigned to any users.", DateTime.Now });
 
             if (await _userManager.IsEmailConfirmedAsync(user)) return StatusCode(401, new { message = "Your email is already confirmed", DateTime.Now });
 
-            var result = await _userManager.ConfirmEmailAsync(user, token);
+            var result = await _userManager.ConfirmEmailAsync(user, confirmation.Token);
 
             if (result.Succeeded)
             {
@@ -385,7 +399,7 @@ namespace FGMEmailSenderApp.Controllers
                 await _userManager.UpdateAsync(user);
             }
 
-            return (result.Succeeded ? Ok(new { message = $"the {_dataHelper.CriptEmail(email)} is been confirmed.", DateTime.Now }) : NotFound(new { message = "The token you provide was not found.", DateTime.Now }));
+            return (result.Succeeded ? Ok(new { message = $"the {_dataHelper.CriptEmail(user.Email)} is been confirmed.", DateTime.Now }) : NotFound(new { message = "The token you provide was not found.", DateTime.Now }));
         }
 
         #endregion
@@ -424,7 +438,7 @@ namespace FGMEmailSenderApp.Controllers
         [Authorize]
         [HttpPut]
         [Route("EditUser")]
-        public async Task<IActionResult> EditUser(EditUserInputModel updateUser)
+        public async Task<IActionResult> EditUser([FromBody]EditUserInputModel updateUser)
         {
             if (!ModelState.IsValid) return StatusCode(406, $"The informations you inserted are not valid, {DateTime.Now}");
 
@@ -434,17 +448,15 @@ namespace FGMEmailSenderApp.Controllers
 
             if (user == null) throw new SecurityException($"You are not allowed, {DateTime.Now}");
 
-            ApplicationUser updUser = new ApplicationUser
-            {
-                UserName = updateUser.UserName,
-                NameUser = updateUser.NameUser,
-                LastNameUser = updateUser.LastNameUser,
-                TwoFactorEnabled = updateUser.TwoFactAuth,
-                //Agreement ignoranteeeeee
-                NewsSenderAggrement = updateUser.NewsSenderAgreement
-            };
+            user.NameUser = updateUser.NameUser = string.IsNullOrEmpty(updateUser.NameUser) ? user.NameUser : updateUser.NameUser;
+            user.LastNameUser = updateUser.LastNameUser = string.IsNullOrEmpty(updateUser.LastNameUser) ? user.LastNameUser : updateUser.LastNameUser;
+            user.UserName = updateUser.UserName = string.IsNullOrEmpty(updateUser.UserName) ? user.UserName : updateUser.UserName;
+            user.TwoFactorEnabled = updateUser.TwoFactAuth;
+            user.NewsSenderAggrement = updateUser.NewsSenderAgreement;
 
-            await _userManager.UpdateAsync(updUser);
+            await _userManager.SetTwoFactorEnabledAsync(user, user.TwoFactorEnabled);
+
+            await _userManager.UpdateAsync(user);
 
             await _context.SaveChangesAsync();
 
@@ -515,16 +527,10 @@ namespace FGMEmailSenderApp.Controllers
 
         #endregion
 
-        //TODO DA FARE PASSWORD DIMENTICATA
-
         #region PRIVATE ACTION - GENERATE 2 FACTORY AUTHENTICATION TOKEN AND SEND IT
 
-        private async Task<IActionResult> GenerateToken2FA()
+        private async Task<IActionResult> GenerateToken2FA(ApplicationUser user)
         {
-            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-
-            if (user == null) throw new SecurityException($"Access denied, you have to provide you are enabled to two factory authentication {DateTime.Now}");
-
             string tokenProvider = String.Empty;
 
             if (await _userManager.IsPhoneNumberConfirmedAsync(user)) tokenProvider = "SMS";
@@ -552,6 +558,8 @@ namespace FGMEmailSenderApp.Controllers
                     break;
             }
 
+            //TODO https://stackoverflow.com/questions/43317473/how-to-implement-two-factor-auth-in-web-api-2-using-asp-net-identity
+
             return Ok( new { message = $"You will receive via {tokenProvider} the OTP on your" + (tokenProvider.Contains("SMS") ? " phone number " : " e-mail address") + $" {criptedCredential} ", DateTime.Now });
         }
 
@@ -566,6 +574,21 @@ namespace FGMEmailSenderApp.Controllers
             await _signInManager.SignInAsync(user, rememberMe);
 
             return rolesUser;
+        }
+
+        #endregion
+
+        #region INTERNAL - CHECK IF IS AN EMAIL OR A PHONE
+
+        internal short CheckEmailOrPhone(string data)
+        {
+            var emailController = new EmailAddressAttribute();
+
+            if (emailController.IsValid(data)) return 1;
+
+            if (data.Any(x => char.IsDigit(x)) || data.Length == 10) return 2;
+
+            return 0;
         }
 
         #endregion
