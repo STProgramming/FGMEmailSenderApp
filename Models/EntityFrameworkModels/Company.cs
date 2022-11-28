@@ -31,6 +31,8 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
         public string CompanyTel { get; set; }
 
         [Required]
+        [MinLength(11)]
+        [MaxLength(11)]
         //TODO create here a custom regex in regular expression data annotation that can contains numbers and letters only
         public string CompanyIva { get; set; }
 

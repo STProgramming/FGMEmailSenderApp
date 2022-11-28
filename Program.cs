@@ -80,9 +80,15 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 #region CONNESSIONE AL DATABASE SQL
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+var connection = builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("MainDbConnection")
+        )
+);
+
+if(connection == null) connection = builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite(
+        builder.Configuration.GetConnectionString("CourtesyDB")
         )
 );
 
