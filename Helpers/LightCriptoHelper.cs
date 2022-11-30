@@ -2,7 +2,7 @@
 
 namespace FGMEmailSenderApp.Helpers
 {
-    public class DataHelper : IDataHelper
+    public class LightCriptoHelper : ILightCriptoHelper
     {
         #region PUBLIC ACCESS TO DATAHELPER
 

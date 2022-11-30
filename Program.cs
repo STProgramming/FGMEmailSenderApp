@@ -1,3 +1,4 @@
+using EmailService;
 using FGMEmailSenderApp.Helpers;
 using FGMEmailSenderApp.Models.EntityFrameworkModels;
 using FGMEmailSenderApp.Models.Interfaces;
@@ -105,7 +106,13 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(option =>
 
 #region INSERIMENTO SERVICES
 
-builder.Services.AddTransient<IDataHelper, DataHelper>();
+builder.Services.AddTransient<ILightCriptoHelper, LightCriptoHelper>();
+
+var emailConfig = builder.Configuration.GetSection("EmailConfiguration")
+    .Get<EmailConfiguration>();
+
+builder.Services.AddSingleton(emailConfig);
+builder.Services.AddSingleton<IEmailSender, EmailSender>();
 
 #endregion
 

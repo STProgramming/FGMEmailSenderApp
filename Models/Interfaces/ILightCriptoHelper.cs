@@ -1,6 +1,6 @@
 ﻿namespace FGMEmailSenderApp.Models.Interfaces
 {
-    public interface IDataHelper
+    public interface ILightCriptoHelper
     {
         string CriptName(string data);
 

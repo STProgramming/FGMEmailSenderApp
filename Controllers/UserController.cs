@@ -30,14 +30,14 @@ namespace FGMEmailSenderApp.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IDataHelper _dataHelper;
+        private readonly ILightCriptoHelper _dataHelper;
 
         public UserController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             ApplicationDbContext context,
             SignInManager<ApplicationUser> signInManager,
-            IDataHelper dataHelper
+            ILightCriptoHelper dataHelper
         )
         {
             _userManager = userManager;

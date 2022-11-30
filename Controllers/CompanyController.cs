@@ -16,12 +16,12 @@ namespace FGMEmailSenderApp.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IDataHelper _dataHelper;
+        private readonly ILightCriptoHelper _dataHelper;
 
         public CompanyController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            IDataHelper dataHelper
+            ILightCriptoHelper dataHelper
             ) 
         {
             _context = context;
