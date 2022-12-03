@@ -19,6 +19,8 @@ using FGMEmailSenderApp.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using NuGet.Protocol.Plugins;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using EmailService;
+using System.Security.Policy;
 
 namespace FGMEmailSenderApp.Controllers
 {
@@ -30,21 +32,24 @@ namespace FGMEmailSenderApp.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly ILightCriptoHelper _dataHelper;
+        private readonly ILightCriptoHelper _lightCriptoHelper;
+        private readonly IEmailSender _emailSender;
 
         public UserController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             ApplicationDbContext context,
             SignInManager<ApplicationUser> signInManager,
-            ILightCriptoHelper dataHelper
+            ILightCriptoHelper lightCriptoHelper,
+            IEmailSender emailSender
         )
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _context = context;
             _signInManager = signInManager;
-            _dataHelper = dataHelper;
+            _lightCriptoHelper = lightCriptoHelper;
+            _emailSender = emailSender;
         }
 
         //TODO CREARE L'AZIONE CHE TI PERMETTE DI GENERARE ED INVIARE IL TOKEN DI CONFERMA DEL NUMERO DI TELEFONO
@@ -78,8 +83,6 @@ namespace FGMEmailSenderApp.Controllers
                 DateTime.Now
             });
 
-            //EmailConfirmed = true, hardcodata per evitare problemi in fase di test
-
             var newUser = new ApplicationUser
             {
                 SecurityStamp = Guid.NewGuid().ToString(),
@@ -96,26 +99,15 @@ namespace FGMEmailSenderApp.Controllers
 
             var result = await _userManager.CreateAsync(newUser, inputUserModel.Password);
 
-            if (!result.Succeeded) 
-            {
-                /// Eliminazione eventuale residuo dell' utente che non si e' potuto registrare,
-                /// su database, altrimenti non potra' + registrarsi perche' il controllo lo
-                /// impedirebbe si elimina ogni info su db.
-                
-                try
-                {
-                    await _userManager.DeleteAsync(newUser);
-                }
-                catch (Exception) { }
-
-                return StatusCode(500, new { message = "Something went wrong while creating your new user, try it later.", DateTime.Now });
-            } 
+            DeleteUserFromException(result.Succeeded, newUser);
 
             await _userManager.AddToRoleAsync(newUser, role_User);
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
 
-            var confirmationLink = Url.Link("email-confirmation", new { token, inputUserModel.EmailUser });            
+            var confirmationLink = $"http://localhost:4200/email-confirmation?token={token}&email={newUser.Email}";
+
+            DeleteUserFromException(_emailSender.SendVerificationEmail(newUser.NameUser, newUser.LastNameUser, newUser.Email, confirmationLink), newUser);
 
             await _context.SaveChangesAsync();
 
@@ -147,7 +139,7 @@ namespace FGMEmailSenderApp.Controllers
                     user = _context.Users.Where(u => u.PhoneNumber.Equals(loginModel.Email)).FirstOrDefault();
                     if (user != null)
                     {
-                        if (!user.PhoneNumberConfirmed) return BadRequest(new { message = $"Dear {_dataHelper.CriptName(user.NameUser)}, for login with phone number is necessary to confirm that. Until your phone is not confirmed, you can't procede by login using it.", DateTime.Now });
+                        if (!user.PhoneNumberConfirmed) return BadRequest(new { message = $"Dear {_lightCriptoHelper.CriptName(user.NameUser)}, for login with phone number is necessary to confirm that. Until your phone is not confirmed, you can't procede by login using it.", DateTime.Now });
                     }
                     break;
                 default:
@@ -338,7 +330,7 @@ namespace FGMEmailSenderApp.Controllers
 
             RedirectToAction("Logout");
 
-            return Ok(new { message = $"You will receive to your {_dataHelper.CriptEmail(newEmail)} a link to conferme the new e-mail provided. Now You automatically being redirect to logout", DateTime.Now });
+            return Ok(new { message = $"You will receive to your {_lightCriptoHelper.CriptEmail(newEmail)} a link to conferme the new e-mail provided. Now You automatically being redirect to logout", DateTime.Now });
         }
 
         #endregion
@@ -370,7 +362,7 @@ namespace FGMEmailSenderApp.Controllers
 
             //TODO SMS HELPER
 
-            return Ok(new { message = $"You will receive the OTP to your new {_dataHelper.CriptPhone(newPhone)}", DateTime.Now });
+            return Ok(new { message = $"You will receive the OTP to your new {_lightCriptoHelper.CriptPhone(newPhone)}", DateTime.Now });
         }
 
         #endregion
@@ -398,7 +390,7 @@ namespace FGMEmailSenderApp.Controllers
                 await _userManager.UpdateAsync(user);
             }
 
-            return (result.Succeeded ? Ok(new { message = $"the {_dataHelper.CriptEmail(user.Email)} is been confirmed.", DateTime.Now }) : NotFound(new { message = "The token you provide was not found.", DateTime.Now }));
+            return (result.Succeeded ? Ok(new { message = $"the {_lightCriptoHelper.CriptEmail(user.Email)} is been confirmed.", DateTime.Now }) : NotFound(new { message = "The token you provide was not found.", DateTime.Now }));
         }
 
         #endregion
@@ -426,7 +418,7 @@ namespace FGMEmailSenderApp.Controllers
 
             var result = await _userManager.VerifyChangePhoneNumberTokenAsync(user, token, phone);
 
-            return (result ? Ok(new { message = $"The {_dataHelper.CriptPhone(phone)} is been confirmed.", DateTime.Now }) : NotFound(new { message = "The token you provide was not found.", DateTime.Now }));
+            return (result ? Ok(new { message = $"The {_lightCriptoHelper.CriptPhone(phone)} is been confirmed.", DateTime.Now }) : NotFound(new { message = "The token you provide was not found.", DateTime.Now }));
         }
 
 
@@ -481,13 +473,13 @@ namespace FGMEmailSenderApp.Controllers
 
             if (user.EmailConfirmed) return StatusCode(401, new { message = "Your email is already confirmed", DateTime.Now });
 
-            var token = HttpUtility.UrlEncode(await _userManager.GenerateEmailConfirmationTokenAsync(user));
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-            var confirmationLink = Url.Link("email-confirmation", new { token, email });
+            var confirmationLink = $"http://localhost:4200/email-confirmation?token={token}&email={email}";
 
-            ///TODO Creare un servizio che invii autonomamente l'email;
-            
-            return Ok(new { message = $"We send another confirmation link at {_dataHelper.CriptEmail(email)}", DateTime.Now });
+            _emailSender.SendVerificationEmail(user.NameUser, user.LastNameUser, user.Email, confirmationLink);
+
+            return Ok(new { message = $"We send another confirmation link at {_lightCriptoHelper.CriptEmail(email)}", DateTime.Now });
         }
 
         #endregion
@@ -546,13 +538,13 @@ namespace FGMEmailSenderApp.Controllers
             {
                 case "SMS":
                     sourceCredential = user.PhoneNumber;
-                    criptedCredential = _dataHelper.CriptPhone(sourceCredential);
+                    criptedCredential = _lightCriptoHelper.CriptPhone(sourceCredential);
                     //TODO smshelper
                     break;
 
                 default:
                     sourceCredential = user.Email;
-                    criptedCredential = _dataHelper.CriptEmail(sourceCredential);
+                    criptedCredential = _lightCriptoHelper.CriptEmail(sourceCredential);
                     //TODO emailhelper
                     break;
             }
@@ -588,6 +580,35 @@ namespace FGMEmailSenderApp.Controllers
             if (data.Any(x => char.IsDigit(x)) || data.Length == 10) return 2;
 
             return 0;
+        }
+
+        #endregion
+
+        #region PRIVATE - CANCELL USER FROM EXCEPTION
+        /// <summary>
+        /// per essere eseguito il parametro dovra' essere sempre false.
+        /// Si presuppone che sia il flag che qualcosa sia andato storto
+        /// </summary>
+        /// <param name="status"></param>
+        private async void DeleteUserFromException(bool status, ApplicationUser user)
+        {
+            if (!status)
+            {
+                /// Eliminazione eventuale residuo dell' utente che non si e' potuto registrare,
+                /// su database, altrimenti non potra' + registrarsi perche' il controllo lo
+                /// impedirebbe si elimina ogni info su db.
+
+                try
+                {
+                    var userToDelete = await _userManager.FindByIdAsync(user.Id);
+                    if( userToDelete != null ) await _userManager.DeleteAsync(user);
+                    throw new Exception($"Something went wrong while creating your account with email address: {_lightCriptoHelper.CriptEmail(user.Email)}, try it later. {DateTime.Now}");
+                }
+                catch (Exception) 
+                {
+                    throw new Exception($"Something went wrong while creating your account with email address: {_lightCriptoHelper.CriptEmail(user.Email)}, try it later. {DateTime.Now}");
+                }
+            }
         }
 
         #endregion

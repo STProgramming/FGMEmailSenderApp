@@ -67,19 +67,19 @@ namespace FGMEmailSenderApp.Controllers
         /// </summary>
         /// <returns></returns>
 
-        [Authorize(Policy = "AddCompanyData")]
-        [HttpPost]
-        [Route("AddCompanyData")]
-        public async Task<IActionResult> AddCompanyData([FromBody] AddCompanyInputModel newCompany)
-        {
-            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        //[Authorize(Policy = "AddCompanyData")]
+        //[HttpPost]
+        //[Route("AddCompanyData")]
+        //public async Task<IActionResult> AddCompanyData([FromBody] AddCompanyInputModel newCompany)
+        //{
+        //    var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            var user = await _userManager.FindByIdAsync(userId);
+        //    var user = await _userManager.FindByIdAsync(userId);
 
-            if(CheckIvaAvailability(newCompany.CompanyIva)) return BadRequest( new { message = "The partita iva you inserted belongs to another company.", DateTime.Now });
+        //    if(CheckIvaAvailability(newCompany.CompanyIva)) return BadRequest( new { message = "The partita iva you inserted belongs to another company.", DateTime.Now });
 
 
-        }
+        //}
 
         #endregion
 
