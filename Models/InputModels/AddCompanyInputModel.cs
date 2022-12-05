@@ -18,6 +18,9 @@ namespace FGMEmailSenderApp.Models.InputModels
         [RegularExpression("^[0-9]*$", ErrorMessage = "Questo campo deve contenere solo numeri")]
         public string CompanyTel { get; set; }
 
+        [RegularExpression("^[0-9]*$", ErrorMessage = "Questo campo deve contenere solo numeri")]
+        public string? CompanyFax { get; set; }
+
         [Required]
         public string CompanyIva { get; set; }
     }

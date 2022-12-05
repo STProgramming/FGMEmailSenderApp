@@ -97,11 +97,11 @@ namespace FGMEmailSenderApp.Controllers
 
             if (await _roleManager.FindByNameAsync(role_User) == null) await _roleManager.CreateAsync(new IdentityRole(role_User));
 
+            await _userManager.AddToRoleAsync(newUser, role_User);
+
             var result = await _userManager.CreateAsync(newUser, inputUserModel.Password);
 
             DeleteUserFromException(result.Succeeded, newUser);
-
-            await _userManager.AddToRoleAsync(newUser, role_User);
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
 

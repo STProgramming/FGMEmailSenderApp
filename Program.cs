@@ -112,11 +112,19 @@ var emailConfig = builder.Configuration.GetSection("EmailConfiguration")
     .Get<EmailConfiguration>();
 
 builder.Services.AddSingleton(emailConfig);
+
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
 
 #endregion
 
 #region POLICIES
+
+///summary///
+///Il permesso di abilitare i dati della compagnia
+builder.Services.AddAuthorization(option =>
+{
+    option.AddPolicy("AddCompanyReferentPermission", policy => policy.RequireClaim(ClaimTypes.Role, RoleHelper.AddCompanyPermissionRole));
+});
 
 #endregion
 
