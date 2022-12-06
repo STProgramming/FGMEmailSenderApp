@@ -2,6 +2,7 @@ using EmailService;
 using FGMEmailSenderApp.Helpers;
 using FGMEmailSenderApp.Models.EntityFrameworkModels;
 using FGMEmailSenderApp.Models.Interfaces;
+using FGMEmailSenderApp.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Identity;
@@ -114,6 +115,8 @@ var emailConfig = builder.Configuration.GetSection("EmailConfiguration")
 builder.Services.AddSingleton(emailConfig);
 
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
+
+builder.Services.AddHostedService<TimedHostedService>();
 
 #endregion
 

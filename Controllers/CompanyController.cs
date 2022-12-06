@@ -96,6 +96,8 @@ namespace FGMEmailSenderApp.Controllers
 
             var user = await _userManager.FindByIdAsync(userId);
 
+            //TODO chiamata a api di invio e verifica partita iva
+
             if (CheckIvaAvailability(newCompany.CompanyIva)) return BadRequest(new { message = "The partita iva you inserted belongs to another company.", DateTime.Now });
 
             if (CheckUniqueEmail(newCompany.CompanyEmail) && CheckUniqueTel(newCompany.CompanyTel)) return BadRequest(new { message = "Email or Phone belongs to anothers companies.", DateTime.Now });
@@ -111,10 +113,30 @@ namespace FGMEmailSenderApp.Controllers
             
             user.Company = company;
 
+            await _userManager.RemoveFromRoleAsync(user, RoleHelper.AddCompanyPermissionRole);
+
             await _context.SaveChangesAsync();
 
             return Ok(new { company, DateTime.Now });
         }
+
+        #endregion
+
+        #region MODIFICA DATI COMPANY
+
+        //TODO
+
+        #endregion
+
+        #region INVIA RICHIESTA REFERENTE AZIENDALE
+
+        //TODO
+
+        #endregion
+
+        #region AGGIUNGI REFERENTE PER AZIENDA
+
+        //TODO
 
         #endregion
 

@@ -111,8 +111,6 @@ namespace FGMEmailSenderApp.Controllers
 
             await _context.SaveChangesAsync();
 
-            ///TODO CREATE EMAIL SERVICE TO SEND THE TOKEN
-
             return Ok( new { message = "Your sign up was perfectly maded, you will receive e-mail with token for the confirmation.", inputUserModel.EmailUser, DateTime.Now });
         }
 
@@ -180,7 +178,7 @@ namespace FGMEmailSenderApp.Controllers
 
             if (result.IsNotAllowed) return StatusCode(401, new { message = "Your account is not allowed to log in anymore. Try to contact the administrator.", DateTime.Now });
 
-            if (user.TwoFactorEnabled && user.PhoneNumberConfirmed)
+            if (user.TwoFactorEnabled || user.PhoneNumberConfirmed)
             {
                 await GenerateToken2FA(user);
 
@@ -205,7 +203,7 @@ namespace FGMEmailSenderApp.Controllers
         {
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
 
-            if(user == null) throw new SecurityException($"Access denied, you have to provide you are enabled to two factory authentication {DateTime.Now}");
+            if (user == null) throw new SecurityException($"Access denied, you have to provide you are enabled to do the two factory authentication {DateTime.Now}");
 
             string tokenProvider = user.PhoneNumberConfirmed ? "SMS" : "E-mail";
 
@@ -322,11 +320,11 @@ namespace FGMEmailSenderApp.Controllers
 
             var token = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
 
-            var confirmationLink = Url.Link("email-confirmation", new { token, newEmail });
+            var confirmationLink = $"http://localhost:4200/email-confirmation?token={token}&email={newEmail}";
 
             await _context.SaveChangesAsync();
 
-            //TODO INVIARE TOKEN CON UN EMAIL SENDER
+            _emailSender.SendVerificationEmail(user.NameUser, user.LastNameUser, newEmail, confirmationLink);
 
             RedirectToAction("Logout");
 
@@ -545,7 +543,7 @@ namespace FGMEmailSenderApp.Controllers
                 default:
                     sourceCredential = user.Email;
                     criptedCredential = _lightCriptoHelper.CriptEmail(sourceCredential);
-                    //TODO emailhelper
+                    _emailSender.SendCode2FA(token, user.Email);
                     break;
             }
 
