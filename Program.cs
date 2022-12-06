@@ -116,7 +116,9 @@ builder.Services.AddSingleton(emailConfig);
 
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
 
-builder.Services.AddHostedService<TimedHostedService>();
+builder.Services.AddScoped<IUsersService, UsersService>();
+
+builder.Services.AddHostedService<BackgroundTimedHostedServices>();
 
 #endregion
 
