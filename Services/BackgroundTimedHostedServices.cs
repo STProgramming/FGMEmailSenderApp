@@ -3,54 +3,97 @@ using FGMEmailSenderApp.Helpers;
 using FGMEmailSenderApp.Models.EntityFrameworkModels;
 using FGMEmailSenderApp.Models.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using IEmailSender = EmailService.IEmailSender;
 
 namespace FGMEmailSenderApp.Services
 {
-    public class BackgroundTimedHostedServices : IHostedService, IDisposable
+    public class BackgroundTimedHostedServices : BackgroundService
     {
-        private int executionCount = 0;
         private readonly ILogger<BackgroundTimedHostedServices> _logger;
-        private Timer _timer;
-        private readonly IUsersService _usersService;
+        private readonly IWebHostEnvironment _env;
+        private readonly IServiceProvider _serviceProvider;
+        private string nameServiceUserPermission = "RemoveRoleAddCompanyUser";
 
         public BackgroundTimedHostedServices(
             ILogger<BackgroundTimedHostedServices> logger,
-            IUsersService usersService)
+            IWebHostEnvironment env,
+            IServiceProvider serviceProvider)
         {
             _logger = logger;
-            _usersService = usersService;
+            _env = env;
+            _serviceProvider = serviceProvider;
         }
 
-        public Task StartAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation($"FGM Services start now: {DateTime.Now}");
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogInformation($"Starting service in backgroung. Remove Role Add Company. {DateTime.Now}");
 
-            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromHours(23));
+                await RemoveRoleAddCompanyUser();
 
-            return Task.CompletedTask;
+                await Task.Delay(new TimeSpan(23, 0, 0));
+            }
         }
 
-        private async void DoWork(object? state)
+        private async Task RemoveRoleAddCompanyUser()
         {
-            var count = Interlocked.Increment(ref executionCount);
+            try
+            {
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var scopedUserManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>> ();
+                    var usersPermissionsAddDataCompany = await scopedUserManager.GetUsersInRoleAsync(RoleHelper.AddCompanyPermissionRole);
 
-            _logger.LogInformation($"Service remove permission to users have no claimed company data. {DateTime.Now}");
+                    if (usersPermissionsAddDataCompany == null)
+                    {
+                        CreateOrEditFile($"{nameServiceUserPermission}: no user found. uservar:{usersPermissionsAddDataCompany}. date:{DateTime.Now}");
+                    }
+                    else
+                    {
+                        List<ApplicationUser> usersPermissionRemove = new List<ApplicationUser>();
+                        foreach (var user in usersPermissionsAddDataCompany)
+                        {
+                            if (user.Company == null) usersPermissionRemove.Add(user);
+                        }
 
-            await _usersService.RemoveRoleAddCompanyUser();
+                        CreateOrEditFile($"{nameServiceUserPermission}. users founded: {usersPermissionRemove.Count}. date {DateTime.Now}");
+
+                        var scopedEmailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
+
+                        foreach (var user in usersPermissionRemove)
+                        {
+                            await scopedUserManager.RemoveFromRoleAsync(user, RoleHelper.AddCompanyPermissionRole);
+                            scopedEmailSender.SendNotificationUserChangeRole(user.NameUser, user.LastNameUser, user.Email, null, null);
+                        }
+
+                        CreateOrEditFile($"{nameServiceUserPermission}. batch ended: emails notification sended to all users. date{DateTime.Now}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CreateOrEditFile($"{nameServiceUserPermission}. batch error! date{DateTime.Now}. Exception detail{ex.ToString()}");
+            }
+            finally
+            {
+                CreateOrEditFile($"{nameServiceUserPermission}. batch ended date{DateTime.Now}");
+            }
         }
 
-        public Task StopAsync(CancellationToken stoppingToken)
+        private async void CreateOrEditFile(string statusContent)
         {
-            _logger.LogInformation("FGM Services ends now.");
+            string pathFile = "\\log\\logService.txt";
 
-            _timer?.Change(Timeout.Infinite, 0);
+            string pathDirectory = _env.ContentRootPath;
 
-            return Task.CompletedTask;
-        }
+            var pathComplete = pathDirectory + pathFile;
 
-        public void Dispose()
-        {
-            _timer?.Dispose();
+            using (var fileController = new StreamWriter(pathComplete, true))
+            {
+                await fileController.WriteLineAsync(statusContent);
+            }
         }
     }
 }

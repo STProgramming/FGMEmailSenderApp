@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using static IdentityModel.ClaimComparer;
@@ -115,8 +116,6 @@ var emailConfig = builder.Configuration.GetSection("EmailConfiguration")
 builder.Services.AddSingleton(emailConfig);
 
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
-
-builder.Services.AddScoped<IUsersService, UsersService>();
 
 builder.Services.AddHostedService<BackgroundTimedHostedServices>();
 
