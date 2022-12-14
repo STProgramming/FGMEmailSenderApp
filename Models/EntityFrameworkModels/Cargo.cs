@@ -85,20 +85,22 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
         #endregion
 
         #region Foreign Keys of cargo
-
-        [ForeignKey(nameof(Department))]
         public int FK_IdDepartmentLoading { get; set; }
 
-        [ForeignKey(nameof(Department))]
         public int FK_IdDepartmentDelivery { get; set; }
 
+        /// <summary>
+        /// Relazione uno a molti tra carichi e compagnie
+        /// Qui abbiamo il lato dipendente molti
+        /// </summary>
         [ForeignKey(nameof(Company))]
         public int FK_IdCompanySender { get; set; }
 
-        [ForeignKey(nameof(Company))]
+        public virtual Company CompanySender { get; set; }
+
         public int FK_IdCompanyReceiver { get; set; }
 
-        public virtual ICollection<CargoEvent> CargoEvents { get; set; }
+        public virtual ICollection<CargoEvent>? CargoEvents { get; set; }
 
         #endregion
     }

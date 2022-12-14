@@ -11,6 +11,17 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
         public DbSet<Company> Companies { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Department> Departments { get; set; }
-        public DbSet<StatusCargo> statusCargos { get; set; }
+        public DbSet<Request> Requests { get; set; }
+        public DbSet<StatusCargo> StatusCargos { get; set; }
+        public DbSet<TypeRequest> TypesRequest { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            builder.Entity<ApplicationUser>()
+            .HasOne(a => a.Company)
+            .WithOne(a => a.Users)
+            .HasForeignKey<Company>(c => c.IdUser);
+        }
     }
 }

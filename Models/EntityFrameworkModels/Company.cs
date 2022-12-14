@@ -42,8 +42,10 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
 
         #region Foreign Keys
 
-        public virtual ICollection<ApplicationUser>? Users { get; set; }
+        public string IdUser { get; set; }
+        public virtual ApplicationUser? Users { get; set; }
 
+        public virtual ICollection<Cargo> Cargoes { get; set; }
         #endregion
     }
 }

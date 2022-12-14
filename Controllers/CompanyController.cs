@@ -21,13 +21,15 @@ namespace FGMEmailSenderApp.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILightCriptoHelper _dataHelper;
         private readonly IEmailSender _emailSender;
+        private readonly ICompanyService _companyService;
 
         public CompanyController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             ILightCriptoHelper dataHelper,
-            IEmailSender emailSender
+            IEmailSender emailSender,
+            ICompanyService companyService
             ) 
         {
             _context = context;
@@ -35,6 +37,7 @@ namespace FGMEmailSenderApp.Controllers
             _roleManager = roleManager;
             _dataHelper = dataHelper;
             _emailSender = emailSender;
+            _companyService = companyService;
         }
 
         #region CHECK PARTITA IVA
@@ -44,7 +47,7 @@ namespace FGMEmailSenderApp.Controllers
         [Route("CheckPIva")]
         public async Task<IActionResult> CheckPIva(string iva)
         {
-            if (iva == null || !iva.Any(i => char.IsLetterOrDigit(i)) || iva.Length != 11 ) return StatusCode(406, $"The information you inserted is not a complant P IVA. {DateTime.Now}");
+            if (CheckIvaCompliant(iva)) return StatusCode(406, $"The information you inserted is not a complant P IVA. {DateTime.Now}");
 
             var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
@@ -67,7 +70,7 @@ namespace FGMEmailSenderApp.Controllers
 
             if (companyClaimed.Users == null) return Ok(new { message = $"The P Iva is used by {_dataHelper.CriptName(companyClaimed.CompanyName)} company, but has no reference with an user.", DateTime.Now });
 
-            if (!string.Equals(companyClaimed.Users.FirstOrDefault().Id, userId)) return Ok(new { message = "This partita iva belongs to a company.", DateTime.Now });
+            if (!string.Equals(companyClaimed.Users.Id, userId)) return Ok(new { message = "This partita iva belongs to a company.", DateTime.Now });
 
             return Ok(new { message = $"This {_dataHelper.CriptName(companyClaimed.CompanyName)} company is already got by you.", DateTime.Now });
         }
@@ -98,9 +101,9 @@ namespace FGMEmailSenderApp.Controllers
 
             //TODO chiamata a api di invio e verifica partita iva
 
-            if (CheckIvaAvailability(newCompany.CompanyIva)) return BadRequest(new { message = "The partita iva you inserted belongs to another company.", DateTime.Now });
+            if (_companyService.CheckIvaAvailability(newCompany.CompanyIva)) return BadRequest(new { message = "The partita iva you inserted belongs to another company.", DateTime.Now });
 
-            if (CheckUniqueEmail(newCompany.CompanyEmail) && CheckUniqueTel(newCompany.CompanyTel)) return BadRequest(new { message = "Email or Phone belongs to anothers companies.", DateTime.Now });
+            if (_companyService.CheckUniqueEmail(newCompany.CompanyEmail) && _companyService.CheckUniqueTel(newCompany.CompanyTel)) return BadRequest(new { message = "Email or Phone belongs to anothers companies.", DateTime.Now });
 
             Company company = new Company
             {
@@ -130,39 +133,54 @@ namespace FGMEmailSenderApp.Controllers
 
         #region INVIA RICHIESTA REFERENTE AZIENDALE
 
-        //TODO
+        [Authorize]
+        [HttpPost]
+        [Route("CreateRequestForAddReferent")]
+        public async Task<IActionResult> CreateRequestForAddReferent(string iva)
+        {
+            if (CheckIvaCompliant(iva)) return StatusCode(406, $"The information you inserted is not a complant P IVA. {DateTime.Now}");
+
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (_companyService.CheckIvaAvailability(iva)) return NotFound(new { message = "The Iva you inserted doesn't belowed to any companies.", DateTime.Now });
+
+            var companyClaimed = _context.Companies.Where(c => c.CompanyIva == iva && c.Users == null);
+
+            if (companyClaimed == null) return BadRequest(new { message = "The company has already a referent.", DateTime.Now });
+
+            Request request = new Request();
+
+            request.Users = user;
+            request.IdUser = user.Id;
+            request.TypesRequest = new TypeRequest { TypeNameRequest = ETypeRequest.RichiestaAggiungaReferenteAziendale.ToString(), Requests = new List<Request> { request } };
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = $"Your request {ETypeRequest.RichiestaAggiungaReferenteAziendale.ToString()} was sent to our staff. You'll receive the answer to {_dataHelper.CriptEmail(user.Email)}", request ,DateTime.Now });
+        }
 
         #endregion
 
         #region AGGIUNGI REFERENTE PER AZIENDA
 
-        //TODO
-
-        #endregion
-
-        #region CHECK P IVA AVAILABILITY
-
-        private bool CheckIvaAvailability(string iva)
+        [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
+        [HttpPost]
+        [Route("AddReferentToCompany")]
+        public async Task<IActionResult> AddReferentToCompany(string iva, string emailUser)
         {
-            return _context.Companies.Any(c => string.Equals(c.CompanyIva, iva));
+
         }
 
         #endregion
 
-        #region CHECK UNIQUE EMAIL COMPANY
+        #region INTERNAL CHECK IVA COMPLIANT
 
-        private bool CheckUniqueEmail(string emailCompany)
+        internal bool CheckIvaCompliant(string iva)
         {
-            return _context.Companies.Any(c => string.Equals(c.CompanyEmail, emailCompany));
-        }
-
-        #endregion
-
-        #region CHECK UNIQUE TEL COMPANY
-
-        private bool CheckUniqueTel(string telCompany)
-        {
-            return _context.Companies.Any(c => string.Equals(c.CompanyTel, telCompany));
+            bool flagCompliant = false;
+            return flagCompliant = iva == null || !iva.Any(i => char.IsLetterOrDigit(i)) || iva.Length != 11 ? false : true;
         }
 
         #endregion

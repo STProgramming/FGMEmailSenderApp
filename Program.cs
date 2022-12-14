@@ -110,6 +110,8 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(option =>
 
 builder.Services.AddTransient<ILightCriptoHelper, LightCriptoHelper>();
 
+builder.Services.AddTransient<ICompanyService, CompanyService>();
+
 var emailConfig = builder.Configuration.GetSection("EmailConfiguration")
     .Get<EmailConfiguration>();
 

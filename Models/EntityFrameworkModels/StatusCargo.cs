@@ -5,7 +5,7 @@ using KeyAttribute = System.ComponentModel.DataAnnotations.KeyAttribute;
 
 namespace FGMEmailSenderApp.Models.EntityFrameworkModels
 {
-    public enum Status
+    public enum EStatusCargo
     {
         Scaricato,
         In_transito,

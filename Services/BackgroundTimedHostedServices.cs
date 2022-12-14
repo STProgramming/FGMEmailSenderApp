@@ -46,7 +46,7 @@ namespace FGMEmailSenderApp.Services
                     var scopedUserManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>> ();
                     var usersPermissionsAddDataCompany = await scopedUserManager.GetUsersInRoleAsync(RoleHelper.AddCompanyPermissionRole);
 
-                    if (usersPermissionsAddDataCompany == null)
+                    if (usersPermissionsAddDataCompany.Count == 0)
                     {
                         CreateOrEditFile($"{nameServiceUserPermission}: no user found. uservar:{usersPermissionsAddDataCompany}. date:{DateTime.Now}");
                     }
