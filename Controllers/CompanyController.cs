@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace FGMEmailSenderApp.Controllers
@@ -47,7 +48,7 @@ namespace FGMEmailSenderApp.Controllers
         [Route("CheckPIva")]
         public async Task<IActionResult> CheckPIva(string iva)
         {
-            if (CheckIvaCompliant(iva)) return StatusCode(406, $"The information you inserted is not a complant P IVA. {DateTime.Now}");
+            if (!CheckIvaCompliant(iva)) return StatusCode(406, $"The information you inserted is not a complant P IVA. {DateTime.Now}");
 
             var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
@@ -68,9 +69,9 @@ namespace FGMEmailSenderApp.Controllers
                 return Ok(new { message = "The partita iva you typed is available", DateTime.Now }); 
             }
 
-            if (companyClaimed.Users == null) return Ok(new { message = $"The P Iva is used by {_dataHelper.CriptName(companyClaimed.CompanyName)} company, but has no reference with an user.", DateTime.Now });
+            if (companyClaimed.User == null) return Ok(new { message = $"The P Iva is used by {_dataHelper.CriptName(companyClaimed.CompanyName)} company, but has no reference with an user.", DateTime.Now });
 
-            if (!string.Equals(companyClaimed.Users.Id, userId)) return Ok(new { message = "This partita iva belongs to a company.", DateTime.Now });
+            if (!string.Equals(companyClaimed.User.Id, userId)) return Ok(new { message = "This partita iva belongs to a company.", DateTime.Now });
 
             return Ok(new { message = $"This {_dataHelper.CriptName(companyClaimed.CompanyName)} company is already got by you.", DateTime.Now });
         }
@@ -138,7 +139,7 @@ namespace FGMEmailSenderApp.Controllers
         [Route("CreateRequestForAddReferent")]
         public async Task<IActionResult> CreateRequestForAddReferent(string iva)
         {
-            if (CheckIvaCompliant(iva)) return StatusCode(406, $"The information you inserted is not a complant P IVA. {DateTime.Now}");
+            if (!CheckIvaCompliant(iva)) return StatusCode(406, $"The information you inserted is not a complant P IVA. {DateTime.Now}");
 
             var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
@@ -146,14 +147,15 @@ namespace FGMEmailSenderApp.Controllers
 
             if (_companyService.CheckIvaAvailability(iva)) return NotFound(new { message = "The Iva you inserted doesn't belowed to any companies.", DateTime.Now });
 
-            var companyClaimed = _context.Companies.Where(c => c.CompanyIva == iva && c.Users == null);
+            var companyClaimed = _context.Companies.Where(c => c.CompanyIva == iva && c.User == null);
 
             if (companyClaimed == null) return BadRequest(new { message = "The company has already a referent.", DateTime.Now });
 
             Request request = new Request();
 
-            request.Users = user;
+            request.User = user;
             request.IdUser = user.Id;
+            request.DescriptionRequest = string.Join(ETypeRequest.RichiestaAggiungaReferenteAziendale.ToString(), iva);
             request.TypesRequest = new TypeRequest { TypeNameRequest = ETypeRequest.RichiestaAggiungaReferenteAziendale.ToString(), Requests = new List<Request> { request } };
 
             await _context.SaveChangesAsync();
@@ -170,7 +172,41 @@ namespace FGMEmailSenderApp.Controllers
         [Route("AddReferentToCompany")]
         public async Task<IActionResult> AddReferentToCompany(string iva, string emailUser)
         {
+            var emailController = new EmailAddressAttribute();
 
+            if (CheckIvaCompliant(iva) || !emailController.IsValid(emailUser)) return StatusCode(406, $"The data you inserted are wrong.{DateTime.Now}");
+
+            var user = await _userManager.FindByEmailAsync(emailUser);
+
+            if (user == null) return NotFound(new { message = "No user was found", DateTime.Now });
+
+            var company = _companyService.GetCompanyFromIva(iva);
+
+            if (company == null) return NotFound(new { message = "No company was found", DateTime.Now });
+
+            if (!_context.Requests.Any(r => r.IdUser == user.Id && r.DescriptionRequest == string.Join(ETypeRequest.RichiestaAggiungaReferenteAziendale.ToString(), iva) || company.User != null || user.Company != null) return BadRequest(new { message = "", DateTime.Now });
+
+            var request = _context.Requests.Where(r => r.IdUser == user.Id && r.DescriptionRequest == string.Join(ETypeRequest.RichiestaAggiungaReferenteAziendale.ToString(), iva));
+
+            company.IdUser = user.Id;
+
+            company.User = user;
+
+            user.IdCompany = company.IdCompany;
+
+            user.Company = company;
+
+            if (!await _roleManager.RoleExistsAsync(RoleHelper.ReferentRole)) await _roleManager.CreateAsync(new IdentityRole { Name = RoleHelper.ReferentRole });
+
+            await _userManager.AddToRoleAsync(user, RoleHelper.ReferentRole);
+
+            await _context.SaveChangesAsync();
+
+            request.FirstOrDefault().Response = request.FirstOrDefault().Response == null ? true : true;
+
+            _emailSender.SendNotificationResponseRequest(request.FirstOrDefault().IdRequest, request.FirstOrDefault().DescriptionRequest, request.FirstOrDefault().Response = request.FirstOrDefault().Response.HasValue ? request.FirstOrDefault().Response.Value : false, user.Email, user.NameUser, user.LastNameUser);
+
+            return Ok(new { message = "The company now has a new referent", DateTime.Now });
         }
 
         #endregion

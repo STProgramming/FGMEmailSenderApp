@@ -22,21 +22,6 @@ namespace FGMEmailSenderApp.Models.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("CountryDepartment", b =>
-                {
-                    b.Property<int>("CountriesIdCountry")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DepartmentsIdDepartment")
-                        .HasColumnType("int");
-
-                    b.HasKey("CountriesIdCountry", "DepartmentsIdDepartment");
-
-                    b.HasIndex("DepartmentsIdDepartment");
-
-                    b.ToTable("CountryDepartment");
-                });
-
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -146,9 +131,8 @@ namespace FGMEmailSenderApp.Models.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CompanySenderIdCompany")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("CompanySenderIdCompany")
+                        .HasColumnType("int");
 
                     b.Property<string>("DeliveryAddress")
                         .IsRequired()
@@ -249,8 +233,11 @@ namespace FGMEmailSenderApp.Models.Migrations
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.Company", b =>
                 {
-                    b.Property<string>("IdCompany")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("IdCompany")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCompany"), 1L, 1);
 
                     b.Property<string>("CompanyEmail")
                         .IsRequired()
@@ -318,6 +305,8 @@ namespace FGMEmailSenderApp.Models.Migrations
 
                     b.HasKey("IdDepartment");
 
+                    b.HasIndex("FK_IdCountry");
+
                     b.ToTable("Department");
                 });
 
@@ -346,14 +335,14 @@ namespace FGMEmailSenderApp.Models.Migrations
                     b.Property<int>("TypesRequestIdTypeRequest")
                         .HasColumnType("int");
 
-                    b.Property<string>("UsersId")
+                    b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("IdRequest");
 
                     b.HasIndex("TypesRequestIdTypeRequest");
 
-                    b.HasIndex("UsersId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Request");
                 });
@@ -394,7 +383,7 @@ namespace FGMEmailSenderApp.Models.Migrations
 
                     b.HasKey("IdTypeRequest");
 
-                    b.ToTable("Types Request");
+                    b.ToTable("TypesRequest");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -530,21 +519,6 @@ namespace FGMEmailSenderApp.Models.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("CountryDepartment", b =>
-                {
-                    b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.Country", null)
-                        .WithMany()
-                        .HasForeignKey("CountriesIdCountry")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.Department", null)
-                        .WithMany()
-                        .HasForeignKey("DepartmentsIdDepartment")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.Cargo", b =>
                 {
                     b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.Company", "CompanySender")
@@ -577,13 +551,24 @@ namespace FGMEmailSenderApp.Models.Migrations
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.Company", b =>
                 {
-                    b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser", "Users")
+                    b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser", "User")
                         .WithOne("Company")
                         .HasForeignKey("FGMEmailSenderApp.Models.EntityFrameworkModels.Company", "IdUser")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Users");
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.Department", b =>
+                {
+                    b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.Country", "Country")
+                        .WithMany("Departments")
+                        .HasForeignKey("FK_IdCountry")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Country");
                 });
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.Request", b =>
@@ -594,13 +579,13 @@ namespace FGMEmailSenderApp.Models.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser", "Users")
+                    b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser", "User")
                         .WithMany("Requests")
-                        .HasForeignKey("UsersId");
+                        .HasForeignKey("UserId");
 
                     b.Navigation("TypesRequest");
 
-                    b.Navigation("Users");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.StatusCargo", b =>
@@ -676,6 +661,11 @@ namespace FGMEmailSenderApp.Models.Migrations
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.Company", b =>
                 {
                     b.Navigation("Cargoes");
+                });
+
+            modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.Country", b =>
+                {
+                    b.Navigation("Departments");
                 });
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.StatusCargo", b =>

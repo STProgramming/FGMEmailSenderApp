@@ -20,6 +20,6 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
         [ForeignKey(nameof(Country))]
         public int FK_IdCountry { get; set; }
 
-        public ICollection<Country> Countries { get; set;}
+        public virtual Country Country { get; set;}
     }
 }

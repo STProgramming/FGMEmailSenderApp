@@ -44,5 +44,32 @@ namespace FGMEmailSenderApp.Services
         //TODO CHIAMATA AD API ESTERNE PER VERIFICARE LA PARTITA IVA
 
         #endregion
+
+        #region GET COMPANY FROM IVA
+
+        public Company GetCompanyFromIva(string iva) 
+        {
+            return _context.Companies.Where(c => c.CompanyIva == iva).FirstOrDefault();
+        }
+
+        #endregion
+
+        #region GET ID COMPANY FROM IVA
+
+        public int GetIdCompanyFromIva(string iva)
+        {
+            return _context.Companies.Where(c => c.CompanyIva == iva).FirstOrDefault().IdCompany;
+        }
+
+        #endregion
+
+        #region GET EMAIL COMPANY FROM IVA
+
+        public string GetEmailCompanyFromIva(string iva)
+        {
+            return _context.Companies.Where(c => c.CompanyIva == iva).FirstOrDefault().CompanyEmail;
+        }
+
+        #endregion
     }
 }

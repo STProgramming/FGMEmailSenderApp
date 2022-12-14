@@ -10,7 +10,7 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
         PropostaCarico,
     }
 
-    [Table("Types Request")]
+    [Table("TypesRequest")]
     public class TypeRequest
     {
         [Required]

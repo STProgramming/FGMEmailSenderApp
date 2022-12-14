@@ -20,7 +20,7 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
             base.OnModelCreating(builder);
             builder.Entity<ApplicationUser>()
             .HasOne(a => a.Company)
-            .WithOne(a => a.Users)
+            .WithOne(a => a.User)
             .HasForeignKey<Company>(c => c.IdUser);
         }
     }

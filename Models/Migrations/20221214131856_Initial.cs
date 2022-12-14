@@ -66,20 +66,6 @@ namespace FGMEmailSenderApp.Models.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Department",
-                columns: table => new
-                {
-                    IdDepartment = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    NameDepartment = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FK_IdCountry = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Department", x => x.IdDepartment);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "StatusCargo",
                 columns: table => new
                 {
@@ -99,7 +85,7 @@ namespace FGMEmailSenderApp.Models.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Types Request",
+                name: "TypesRequest",
                 columns: table => new
                 {
                     IdTypeRequest = table.Column<int>(type: "int", nullable: false)
@@ -108,7 +94,7 @@ namespace FGMEmailSenderApp.Models.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Types Request", x => x.IdTypeRequest);
+                    table.PrimaryKey("PK_TypesRequest", x => x.IdTypeRequest);
                 });
 
             migrationBuilder.CreateTable(
@@ -221,7 +207,8 @@ namespace FGMEmailSenderApp.Models.Migrations
                 name: "Company",
                 columns: table => new
                 {
-                    IdCompany = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    IdCompany = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     CompanyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CompanyEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CompanyTel = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -241,26 +228,22 @@ namespace FGMEmailSenderApp.Models.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CountryDepartment",
+                name: "Department",
                 columns: table => new
                 {
-                    CountriesIdCountry = table.Column<int>(type: "int", nullable: false),
-                    DepartmentsIdDepartment = table.Column<int>(type: "int", nullable: false)
+                    IdDepartment = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NameDepartment = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FK_IdCountry = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CountryDepartment", x => new { x.CountriesIdCountry, x.DepartmentsIdDepartment });
+                    table.PrimaryKey("PK_Department", x => x.IdDepartment);
                     table.ForeignKey(
-                        name: "FK_CountryDepartment_Country_CountriesIdCountry",
-                        column: x => x.CountriesIdCountry,
+                        name: "FK_Department_Country_FK_IdCountry",
+                        column: x => x.FK_IdCountry,
                         principalTable: "Country",
                         principalColumn: "IdCountry",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CountryDepartment_Department_DepartmentsIdDepartment",
-                        column: x => x.DepartmentsIdDepartment,
-                        principalTable: "Department",
-                        principalColumn: "IdDepartment",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -275,20 +258,20 @@ namespace FGMEmailSenderApp.Models.Migrations
                     IdTypesRequest = table.Column<int>(type: "int", nullable: false),
                     TypesRequestIdTypeRequest = table.Column<int>(type: "int", nullable: false),
                     IdUser = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UsersId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Request", x => x.IdRequest);
                     table.ForeignKey(
-                        name: "FK_Request_AspNetUsers_UsersId",
-                        column: x => x.UsersId,
+                        name: "FK_Request_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Request_Types Request_TypesRequestIdTypeRequest",
+                        name: "FK_Request_TypesRequest_TypesRequestIdTypeRequest",
                         column: x => x.TypesRequestIdTypeRequest,
-                        principalTable: "Types Request",
+                        principalTable: "TypesRequest",
                         principalColumn: "IdTypeRequest",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -320,7 +303,7 @@ namespace FGMEmailSenderApp.Models.Migrations
                     FK_IdDepartmentLoading = table.Column<int>(type: "int", nullable: false),
                     FK_IdDepartmentDelivery = table.Column<int>(type: "int", nullable: false),
                     FK_IdCompanySender = table.Column<int>(type: "int", nullable: false),
-                    CompanySenderIdCompany = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CompanySenderIdCompany = table.Column<int>(type: "int", nullable: false),
                     FK_IdCompanyReceiver = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -425,9 +408,9 @@ namespace FGMEmailSenderApp.Models.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CountryDepartment_DepartmentsIdDepartment",
-                table: "CountryDepartment",
-                column: "DepartmentsIdDepartment");
+                name: "IX_Department_FK_IdCountry",
+                table: "Department",
+                column: "FK_IdCountry");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Request_TypesRequestIdTypeRequest",
@@ -435,9 +418,9 @@ namespace FGMEmailSenderApp.Models.Migrations
                 column: "TypesRequestIdTypeRequest");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Request_UsersId",
+                name: "IX_Request_UserId",
                 table: "Request",
-                column: "UsersId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StatusCargo_StatusCargoIdStatusCargo",
@@ -466,7 +449,7 @@ namespace FGMEmailSenderApp.Models.Migrations
                 name: "CargoEvent");
 
             migrationBuilder.DropTable(
-                name: "CountryDepartment");
+                name: "Department");
 
             migrationBuilder.DropTable(
                 name: "Request");
@@ -484,10 +467,7 @@ namespace FGMEmailSenderApp.Models.Migrations
                 name: "Country");
 
             migrationBuilder.DropTable(
-                name: "Department");
-
-            migrationBuilder.DropTable(
-                name: "Types Request");
+                name: "TypesRequest");
 
             migrationBuilder.DropTable(
                 name: "Company");

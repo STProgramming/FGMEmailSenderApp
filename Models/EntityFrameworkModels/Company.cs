@@ -16,7 +16,7 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
 
         [Key]
         [Required]
-        public string IdCompany { get; set; }
+        public int IdCompany { get; set; }
 
         [Required]
         //TODO in a second code wave need to provide the data annotation to passing a correct form for all properties
@@ -43,7 +43,7 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
         #region Foreign Keys
 
         public string IdUser { get; set; }
-        public virtual ApplicationUser? Users { get; set; }
+        public virtual ApplicationUser? User { get; set; }
 
         public virtual ICollection<Cargo> Cargoes { get; set; }
         #endregion

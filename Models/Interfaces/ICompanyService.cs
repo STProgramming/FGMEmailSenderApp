@@ -1,4 +1,6 @@
-﻿namespace FGMEmailSenderApp.Models.Interfaces
+﻿using FGMEmailSenderApp.Models.EntityFrameworkModels;
+
+namespace FGMEmailSenderApp.Models.Interfaces
 {
     public interface ICompanyService
     {
@@ -7,5 +9,11 @@
         bool CheckUniqueEmail(string emailCompany);
 
         bool CheckUniqueTel(string telCompany);
+
+        Company GetCompanyFromIva(string iva);
+
+        int GetIdCompanyFromIva(string iva);
+
+        string GetEmailCompanyFromIva(string iva);
     }
 }
