@@ -184,9 +184,9 @@ namespace FGMEmailSenderApp.Controllers
 
             if (company == null) return NotFound(new { message = "No company was found", DateTime.Now });
 
-            if (!_context.Requests.Any(r => r.IdUser == user.Id && r.DescriptionRequest == string.Join(ETypeRequest.RichiestaAggiungaReferenteAziendale.ToString(), iva) || company.User != null || user.Company != null) return BadRequest(new { message = "", DateTime.Now });
+            if (!_context.Requests.Any(r => r.IdUser == user.Id && r.DescriptionRequest == iva || company.User != null || user.Company != null)) return BadRequest(new { message = "The user doesn't require any action to be promoted as referent of company", DateTime.Now });
 
-            var request = _context.Requests.Where(r => r.IdUser == user.Id && r.DescriptionRequest == string.Join(ETypeRequest.RichiestaAggiungaReferenteAziendale.ToString(), iva));
+            var request = _context.Requests.Where(r => r.IdUser == user.Id && r.DescriptionRequest == iva);
 
             company.IdUser = user.Id;
 
@@ -204,9 +204,26 @@ namespace FGMEmailSenderApp.Controllers
 
             request.FirstOrDefault().Response = request.FirstOrDefault().Response == null ? true : true;
 
-            _emailSender.SendNotificationResponseRequest(request.FirstOrDefault().IdRequest, request.FirstOrDefault().DescriptionRequest, request.FirstOrDefault().Response = request.FirstOrDefault().Response.HasValue ? request.FirstOrDefault().Response.Value : false, user.Email, user.NameUser, user.LastNameUser);
+            _emailSender.SendNotificationResponseRequest(request.FirstOrDefault().IdRequest, request.FirstOrDefault().TypesRequest.TypeNameRequest.ToString() ,request.FirstOrDefault().DescriptionRequest ,request.FirstOrDefault().Response, user.Email, user.NameUser, user.LastNameUser);
 
             return Ok(new { message = "The company now has a new referent", DateTime.Now });
+        }
+
+        #endregion
+
+        #region GET DETTAGLI COMPANY
+
+        [Authorize(Roles = RoleHelper.ReferentRole)]
+        [HttpGet]
+        [Route("GetCompanyDetails")]
+
+        public async Task<ActionResult<Company>> GetCompanyDetails()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            return Ok(new { user.Company, DateTime.Now });
         }
 
         #endregion
