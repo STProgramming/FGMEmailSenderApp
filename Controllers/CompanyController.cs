@@ -13,7 +13,7 @@ using System.Security.Claims;
 
 namespace FGMEmailSenderApp.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Identity/[controller]")]
     [ApiController]
     public class CompanyController : ControllerBase
     {

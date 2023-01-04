@@ -24,7 +24,7 @@ using System.Security.Policy;
 
 namespace FGMEmailSenderApp.Controllers
 {
-    [Route("Identity/[controller]")]
+    [Route("api/Identity/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {

@@ -12,6 +12,7 @@ using System.Security.Claims;
 
 namespace FGMEmailSenderApp.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class RequestController : ControllerBase
