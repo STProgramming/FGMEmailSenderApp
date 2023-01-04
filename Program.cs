@@ -126,10 +126,19 @@ builder.Services.AddHostedService<BackgroundTimedHostedServices>();
 #region POLICIES
 
 ///summary///
-///Il permesso di abilitare i dati della compagnia
+///CASO in cui partita iva non e' presente
+///Il permesso di abilitare l'utente a aggiungere i dati della compagnia
 builder.Services.AddAuthorization(option =>
 {
-    option.AddPolicy("AddCompanyReferentPermission", policy => policy.RequireClaim(ClaimTypes.Role, RoleHelper.AddCompanyPermissionRole));
+    option.AddPolicy("AddDataCompany", policy => policy.RequireClaim(ClaimTypes.Role, RoleHelper.AddCompanyPermissionRole));
+});
+
+///summary///
+///CASO in cui partita iva e' presente
+///Il permesso di abilitare l'utente alla modifica dei dati della compagnia
+builder.Services.AddAuthorization(option =>
+{
+    option.AddPolicy("EditDataCompanyPermission", policy => policy.RequireClaim(ClaimTypes.Role, RoleHelper.EditCompanyPermissionRole));
 });
 
 #endregion

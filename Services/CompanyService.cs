@@ -71,5 +71,14 @@ namespace FGMEmailSenderApp.Services
         }
 
         #endregion
+
+        #region GET COMPANY FROM ID
+
+        public Company GetCompanyFromId(int IdCompany)
+        {
+            return _context.Companies.Where(c => c.IdCompany == IdCompany).FirstOrDefault();
+        }
+
+        #endregion
     }
 }

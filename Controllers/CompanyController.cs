@@ -64,7 +64,7 @@ namespace FGMEmailSenderApp.Controllers
 
                 await _userManager.AddToRoleAsync(user, RoleHelper.AddCompanyPermissionRole);
 
-                _emailSender.SendNotificationUserChangeRole(user.NameUser, user.LastNameUser, user.Email, "createCompany", iva);
+                _emailSender.SendNotificationUserPermission(user.NameUser, user.LastNameUser, user.Email, "createCompany", iva);
 
                 return Ok(new { message = "The partita iva you typed is available", DateTime.Now }); 
             }
@@ -78,7 +78,7 @@ namespace FGMEmailSenderApp.Controllers
 
         #endregion
 
-        #region INSERISCI DATI DENTRO LA COMPANY
+        #region AGGIUNGI DATI COMPANY
 
         /// <summary>
         /// l'utente potrà aggiungere i dati della compangia solo se la partita iva non sarà inserita 
@@ -88,7 +88,7 @@ namespace FGMEmailSenderApp.Controllers
         /// </summary>
         /// <returns></returns>
 
-        [Authorize(Policy = "AddCompanyReferentPermission")]
+        [Authorize(Policy = "AddDataCompanyPermission")]
         [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
         [HttpPost]
         [Route("AddCompanyData")]
@@ -119,6 +119,12 @@ namespace FGMEmailSenderApp.Controllers
 
             await _userManager.RemoveFromRoleAsync(user, RoleHelper.AddCompanyPermissionRole);
 
+            if (!await _roleManager.RoleExistsAsync(RoleHelper.ReferentRole)) await _roleManager.CreateAsync(new IdentityRole { Name = RoleHelper.ReferentRole });
+
+            await _userManager.AddToRoleAsync(user, RoleHelper.ReferentRole);
+
+            _emailSender.SendNotificationUserChangeRole(user.NameUser, user.LastNameUser, user.Email, RoleHelper.ReferentRole);
+
             await _context.SaveChangesAsync();
 
             return Ok(new { company, DateTime.Now });
@@ -128,39 +134,63 @@ namespace FGMEmailSenderApp.Controllers
 
         #region MODIFICA DATI COMPANY
 
-        //TODO
-
-        #endregion
-
-        #region INVIA RICHIESTA REFERENTE AZIENDALE
-
-        [Authorize]
-        [HttpPost]
-        [Route("CreateRequestForAddReferent")]
-        public async Task<IActionResult> CreateRequestForAddReferent(string iva)
+        [Authorize(Policy = "EditDataCompanyPermission")]
+        [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
+        [HttpPut]
+        [Route("EditDataCompany")]
+        public async Task<IActionResult> EditDataCompany([FromBody] EditCompanyInputModel editCompany)
         {
-            if (!CheckIvaCompliant(iva)) return StatusCode(406, $"The information you inserted is not a complant P IVA. {DateTime.Now}");
+            if (!ModelState.IsValid) return StatusCode(406, $"The data you inserted are wrong {DateTime.Now}");
 
             var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
             var user = await _userManager.FindByIdAsync(userId);
 
-            if (_companyService.CheckIvaAvailability(iva)) return NotFound(new { message = "The Iva you inserted doesn't belowed to any companies.", DateTime.Now });
+            var companyOldData = _companyService.GetCompanyFromId(user.IdCompany);
 
-            var companyClaimed = _context.Companies.Where(c => c.CompanyIva == iva && c.User == null);
+            var companyDataEdit = new Company();
 
-            if (companyClaimed == null) return BadRequest(new { message = "The company has already a referent.", DateTime.Now });
+            if (!String.IsNullOrEmpty(editCompany.CompanyEmail))
+            {
+                if (_companyService.CheckUniqueEmail(editCompany.CompanyEmail)) return BadRequest(new { message = $"The iva you inserted belongs to another company", DateTime.Now });
+            }
+            else
+            {
+                companyDataEdit.CompanyEmail = companyOldData.CompanyEmail;
+            }
 
-            Request request = new Request();
+            if (!String.IsNullOrEmpty(editCompany.CompanyTel))
+            {
+                if (_companyService.CheckUniqueTel(editCompany.CompanyTel)) return BadRequest(new { message = $"The phone you inserted belongs to another company", DateTime.Now });
+            }
+            else
+            {
+                companyDataEdit.CompanyTel = companyOldData.CompanyTel;
+            }
 
-            request.User = user;
-            request.IdUser = user.Id;
-            request.DescriptionRequest = string.Join(ETypeRequest.RichiestaAggiungaReferenteAziendale.ToString(), iva);
-            request.TypesRequest = new TypeRequest { TypeNameRequest = ETypeRequest.RichiestaAggiungaReferenteAziendale.ToString(), Requests = new List<Request> { request } };
+            if (!String.IsNullOrEmpty(editCompany.CompanyIva))
+            {
+                if (CheckIvaCompliant(editCompany.CompanyIva))
+                {
+                    if (_companyService.CheckIvaAvailability(editCompany.CompanyIva)) return BadRequest(new { message = $"The iva you inserted belongs to another company.", DateTime.Now });
+                }
+                else
+                {
+                    return BadRequest(new { message = $"The iva you inserted is not compliant.", DateTime.Now });
+                }
+            }
+            else
+            {
+                companyDataEdit.CompanyIva = companyOldData.CompanyIva;
+            }
 
-            await _context.SaveChangesAsync();
+            companyDataEdit.CompanyName = companyDataEdit.CompanyName != null ? companyDataEdit.CompanyName : companyOldData.CompanyName;
 
-            return Ok(new { message = $"Your request {ETypeRequest.RichiestaAggiungaReferenteAziendale.ToString()} was sent to our staff. You'll receive the answer to {_dataHelper.CriptEmail(user.Email)}", request ,DateTime.Now });
+            companyDataEdit.CompanyFax = companyDataEdit.CompanyFax != null ? companyDataEdit.CompanyFax : companyOldData.CompanyFax;
+
+            await _userManager.RemoveFromRoleAsync(user, RoleHelper.EditCompanyPermissionRole);
+
+            return Ok(new { message = $"The update of company {_dataHelper.CriptName(companyDataEdit.CompanyName)}", companyDataEdit, DateTime.Now });
         }
 
         #endregion

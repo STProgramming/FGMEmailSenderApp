@@ -9,6 +9,8 @@ namespace FGMEmailSenderApp.Helpers
 
         public const string AddCompanyPermissionRole = "AddCompany";
 
+        public const string EditCompanyPermissionRole = "EditCompany";
+
         public const string FGMEmployeeInternalRole = "FGMEmployee";
 
         public const string ReferentRole = "Referent";

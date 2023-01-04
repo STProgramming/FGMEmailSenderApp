@@ -15,5 +15,7 @@ namespace FGMEmailSenderApp.Models.Interfaces
         int GetIdCompanyFromIva(string iva);
 
         string GetEmailCompanyFromIva(string iva);
+
+        Company GetCompanyFromId(int IdCompany);
     }
 }
