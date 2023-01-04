@@ -29,6 +29,8 @@ namespace FGMEmailSenderApp.Controllers
             _emailSender = emailSender;
         }
 
+        #region GET ALL REQUESTS
+
         [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
         [HttpGet]
         [Route("GetAllRequests")]
@@ -36,6 +38,10 @@ namespace FGMEmailSenderApp.Controllers
         {
             return await _context.Requests.ToListAsync();
         }
+
+        #endregion
+
+        #region GET USER REQUESTS
 
         [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
         [HttpGet]
@@ -54,6 +60,10 @@ namespace FGMEmailSenderApp.Controllers
 
             return Ok( new { requests, DateTime.Now });
         }
+
+        #endregion
+
+        #region GET DETAILS REQUEST
 
         [Authorize]
         [HttpPost]
@@ -80,10 +90,14 @@ namespace FGMEmailSenderApp.Controllers
             }
         }
 
+        #endregion
+
+        #region GET REQUESTS FROM QUERY
+
         [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
         [HttpGet]
-        [Route("GetRequestFromQuery")]
-        public async Task<ActionResult<ICollection<Request>>> GetRequestFromQuery(string query)
+        [Route("GetRequestsFromQuery")]
+        public async Task<ActionResult<ICollection<Request>>> GetRequestsFromQuery(string query)
         {
             try
             {
@@ -95,6 +109,10 @@ namespace FGMEmailSenderApp.Controllers
 
             return await _context.Requests.Where(c => c.DescriptionRequest.ToLower().Contains(query) || c.Response == Boolean.Parse(query) || c.IdTypesRequest == Int32.Parse(query)).ToListAsync();
         }
+
+        #endregion
+
+        #region CREATE NEW REQUEST
 
         [Authorize(Roles = RoleHelper.UserRole)]
         [Authorize(Roles = RoleHelper.ReferentRole)]
@@ -122,6 +140,10 @@ namespace FGMEmailSenderApp.Controllers
             return Ok( new { newRequest, DateTime.Now });
         }
 
+        #endregion
+
+        #region POST RESPONSE FOR REQUEST
+
         [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
         [HttpPost]
         [Route("PostResponseForRequest")]
@@ -131,13 +153,26 @@ namespace FGMEmailSenderApp.Controllers
 
             if (request == null) return NotFound(DateTime.Now);
 
+            var user = await _userManager.FindByIdAsync(request.FirstOrDefault().IdUser);
+
             request.FirstOrDefault().Response = response;
 
-            _emailSender.SendNotificationResponseRequest(idRequest, request.FirstOrDefault().TypesRequest.ToString(), request.FirstOrDefault().DescriptionRequest.ToString(), response, request.FirstOrDefault().User.Email, request.FirstOrDefault().User.NameUser, request.FirstOrDefault().User.LastNameUser);
+            if (response == true && request.FirstOrDefault().TypesRequest.IdTypeRequest != 3)
+            {
+                var typeResponse = request.FirstOrDefault().TypesRequest.IdTypeRequest == 1 ? "updateCompany" : "createCompany";
+
+                _emailSender.SendNotificationUserPermission(user.NameUser, user.LastNameUser, user.Email, request.FirstOrDefault().DescriptionRequest, user.Company.CompanyName);   
+            }
+            else
+            {
+                _emailSender.SendNotificationResponseRequest(idRequest, request.FirstOrDefault().TypesRequest.ToString(), request.FirstOrDefault().DescriptionRequest.ToString(), response, request.FirstOrDefault().User.Email, request.FirstOrDefault().User.NameUser, request.FirstOrDefault().User.LastNameUser);
+            }
 
             await _context.SaveChangesAsync();
 
             return Ok(new { request, DateTime.Now });
         }
+
+        #endregion
     }
 }
