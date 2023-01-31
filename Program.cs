@@ -74,11 +74,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.SignIn.RequireConfirmedAccount = true;
     options.SignIn.RequireConfirmedEmail = true;
-    options.User.RequireUniqueEmail = true;    
+    options.User.RequireUniqueEmail = true;  
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
-
 #endregion
 
 #region CONNESSIONE AL DATABASE SQL
@@ -111,6 +110,8 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(option =>
 builder.Services.AddTransient<ILightCriptoHelper, LightCriptoHelper>();
 
 builder.Services.AddTransient<ICompanyService, CompanyService>();
+
+builder.Services.AddTransient<ILocationService, LocationService>();
 
 var emailConfig = builder.Configuration.GetSection("EmailConfiguration")
     .Get<EmailConfiguration>();

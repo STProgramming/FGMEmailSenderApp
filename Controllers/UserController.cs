@@ -93,13 +93,13 @@ namespace FGMEmailSenderApp.Controllers
                 PhoneNumber = inputUserModel.PhoneUser,
             };
 
-            string role_User = "User";
+            string role_User = RoleHelper.UserRole;
 
             if (await _roleManager.FindByNameAsync(role_User) == null) await _roleManager.CreateAsync(new IdentityRole(role_User));
 
-            await _userManager.AddToRoleAsync(newUser, role_User);
-
             var result = await _userManager.CreateAsync(newUser, inputUserModel.Password);
+
+            await _userManager.AddToRoleAsync(newUser, role_User);
 
             DeleteUserFromException(result.Succeeded, newUser);
 
@@ -180,7 +180,7 @@ namespace FGMEmailSenderApp.Controllers
 
             if (user.TwoFactorEnabled || user.PhoneNumberConfirmed)
             {
-                await GenerateToken2FA(user);
+                await GenerateToken2FA(user, loginModel.Password, loginModel.RememberMe);
 
                 return Ok(new { message = $"success = {result}, We send you the Two Factory Authentication token to your e-mail or your phone cell.", DateTime.Now });
             }
@@ -203,15 +203,17 @@ namespace FGMEmailSenderApp.Controllers
         {
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
 
-            if (user == null) throw new SecurityException($"Access denied, you have to provide you are enabled to do the two factory authentication {DateTime.Now}");
+            if (user == null) return NotFound(new {DateTime.Now});
 
-            string tokenProvider = user.PhoneNumberConfirmed ? "SMS" : "E-mail";
+            string tokenProvider = user.PhoneNumberConfirmed ? "SMS" : "Email";
 
             if (codeToken == null) return StatusCode(403, new { message = "You need to provide the token of two factory authentication", DateTime.Now });
 
-            if (codeToken.All(c => Char.IsLetterOrDigit(c))) throw new SecurityException($"Your token doesn't respect the security role {DateTime.Now}");
+            if (!codeToken.All(c => Char.IsLetterOrDigit(c))) return StatusCode(403, new { message = "Your token doesn't respect the security rules ", DateTime.Now });
 
             //TODO ATTUALMENTE HARD CODATO IN ATTESA DI UNA DELUCIDAZIONE SU COME PRENDERE QUESTO BOOL "REMEMBER CLIENT"
+
+            if (!user.TwoFactorEnabled || (!user.PhoneNumberConfirmed && tokenProvider.Equals("SMS"))) return BadRequest(new { message = "You are not allowed to sign in with 2 authentication factory.", DateTime.Now });
 
             var result = await _signInManager.TwoFactorSignInAsync(tokenProvider, codeToken, rememberMe, true);
 
@@ -518,7 +520,7 @@ namespace FGMEmailSenderApp.Controllers
 
         #region PRIVATE ACTION - GENERATE 2 FACTORY AUTHENTICATION TOKEN AND SEND IT
 
-        private async Task<IActionResult> GenerateToken2FA(ApplicationUser user)
+        private async Task<IActionResult> GenerateToken2FA(ApplicationUser user, string password, bool rememberMe)
         {
             string tokenProvider = String.Empty;
 
@@ -548,6 +550,8 @@ namespace FGMEmailSenderApp.Controllers
             }
 
             //TODO https://stackoverflow.com/questions/43317473/how-to-implement-two-factor-auth-in-web-api-2-using-asp-net-identity
+
+            await _signInManager.PasswordSignInAsync(user, password, rememberMe, false);
 
             return Ok( new { message = $"You will receive via {tokenProvider} the OTP on your" + (tokenProvider.Contains("SMS") ? " phone number " : " e-mail address") + $" {criptedCredential} ", DateTime.Now });
         }

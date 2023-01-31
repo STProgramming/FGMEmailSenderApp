@@ -22,6 +22,8 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
         [ForeignKey(nameof(Cargo))]
         public int FK_IdCargo { get; set; }
 
+        public string FK_TitleCargo { get; set; }
+
         public virtual Cargo Cargoes { get; set; }
     }
 }

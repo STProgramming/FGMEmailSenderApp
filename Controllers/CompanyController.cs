@@ -125,6 +125,12 @@ namespace FGMEmailSenderApp.Controllers
 
             _emailSender.SendNotificationUserChangeRole(user.NameUser, user.LastNameUser, user.Email, RoleHelper.ReferentRole);
 
+            await _context.Companies.AddAsync(company);
+
+            user.Company = company;
+
+            await _userManager.UpdateAsync(user);
+
             await _context.SaveChangesAsync();
 
             return Ok(new { company, DateTime.Now });
@@ -189,6 +195,8 @@ namespace FGMEmailSenderApp.Controllers
             companyDataEdit.CompanyFax = companyDataEdit.CompanyFax != null ? companyDataEdit.CompanyFax : companyOldData.CompanyFax;
 
             await _userManager.RemoveFromRoleAsync(user, RoleHelper.EditCompanyPermissionRole);
+
+            _context.Companies.Update(companyDataEdit);
 
             return Ok(new { message = $"The update of company {_dataHelper.CriptName(companyDataEdit.CompanyName)}", companyDataEdit, DateTime.Now });
         }

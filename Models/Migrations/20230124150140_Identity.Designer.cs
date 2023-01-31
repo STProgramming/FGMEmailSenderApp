@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FGMEmailSenderApp.Models.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20221214131908_Identity")]
+    [Migration("20230124150140_Identity")]
     partial class Identity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -217,6 +217,10 @@ namespace FGMEmailSenderApp.Models.Migrations
                     b.Property<int>("FK_IdStatusCargo")
                         .HasColumnType("int");
 
+                    b.Property<string>("FK_TitleCargo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("NoteEvent")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -231,6 +235,32 @@ namespace FGMEmailSenderApp.Models.Migrations
                     b.HasIndex("StatusCargoesIdStatusCargo");
 
                     b.ToTable("CargoEvent");
+                });
+
+            modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.City", b =>
+                {
+                    b.Property<int>("IdCity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCity"), 1L, 1);
+
+                    b.Property<string>("CapCity")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("FK_IdCountry")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NameCity")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("IdCity");
+
+                    b.HasIndex("FK_IdCountry");
+
+                    b.ToTable("City");
                 });
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.Company", b =>
@@ -298,6 +328,10 @@ namespace FGMEmailSenderApp.Models.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdDepartment"), 1L, 1);
 
+                    b.Property<string>("CodeDepartment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("FK_IdCountry")
                         .HasColumnType("int");
 
@@ -361,12 +395,7 @@ namespace FGMEmailSenderApp.Models.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StatusCargoIdStatusCargo")
-                        .HasColumnType("int");
-
                     b.HasKey("IdStatusCargo");
-
-                    b.HasIndex("StatusCargoIdStatusCargo");
 
                     b.ToTable("StatusCargo");
                 });
@@ -524,7 +553,7 @@ namespace FGMEmailSenderApp.Models.Migrations
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.Cargo", b =>
                 {
                     b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.Company", "CompanySender")
-                        .WithMany("Cargoes")
+                        .WithMany("Cargos")
                         .HasForeignKey("CompanySenderIdCompany")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -541,7 +570,7 @@ namespace FGMEmailSenderApp.Models.Migrations
                         .IsRequired();
 
                     b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.StatusCargo", "StatusCargoes")
-                        .WithMany()
+                        .WithMany("CargosEvent")
                         .HasForeignKey("StatusCargoesIdStatusCargo")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -549,6 +578,17 @@ namespace FGMEmailSenderApp.Models.Migrations
                     b.Navigation("Cargoes");
 
                     b.Navigation("StatusCargoes");
+                });
+
+            modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.City", b =>
+                {
+                    b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.Country", "Country")
+                        .WithMany("Cities")
+                        .HasForeignKey("FK_IdCountry")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Country");
                 });
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.Company", b =>
@@ -588,13 +628,6 @@ namespace FGMEmailSenderApp.Models.Migrations
                     b.Navigation("TypesRequest");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.StatusCargo", b =>
-                {
-                    b.HasOne("FGMEmailSenderApp.Models.EntityFrameworkModels.StatusCargo", null)
-                        .WithMany("StatusCargoes")
-                        .HasForeignKey("StatusCargoIdStatusCargo");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -662,17 +695,19 @@ namespace FGMEmailSenderApp.Models.Migrations
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.Company", b =>
                 {
-                    b.Navigation("Cargoes");
+                    b.Navigation("Cargos");
                 });
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.Country", b =>
                 {
+                    b.Navigation("Cities");
+
                     b.Navigation("Departments");
                 });
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.StatusCargo", b =>
                 {
-                    b.Navigation("StatusCargoes");
+                    b.Navigation("CargosEvent");
                 });
 
             modelBuilder.Entity("FGMEmailSenderApp.Models.EntityFrameworkModels.TypeRequest", b =>

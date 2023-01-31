@@ -34,7 +34,7 @@ namespace FGMEmailSenderApp.Controllers
         {
             var emailController = new EmailAddressAttribute();
 
-            if (emailController.IsValid(email)) return StatusCode(406);
+            if (!emailController.IsValid(email)) return StatusCode(406);
 
             var user = await _userManager.FindByEmailAsync(email);
 

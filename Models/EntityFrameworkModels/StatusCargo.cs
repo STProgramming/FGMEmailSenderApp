@@ -8,11 +8,15 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
     public enum EStatusCargo
     {
         Scaricato,
-        In_transito,
-        Non_Caricato,
+        InTransito,
+        NonCaricato,
         Caricando,
         Scaricando,
-        Problema
+        Problema,
+        InPartenza,
+        InArrivo,
+        Consegnato,
+        NonConsegnato
     }
 
     [Table("StatusCargo")]
@@ -27,6 +31,7 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
         [Required]
         public string NameStatusCargo { get; set; }
 
-        public virtual ICollection<StatusCargo> StatusCargoes { get; set; }
+
+        public virtual ICollection<CargoEvent> CargosEvent { get; set; }
     }
 }

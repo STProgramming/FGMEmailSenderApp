@@ -1,5 +1,7 @@
 ﻿using FGMEmailSenderApp.Models.EntityFrameworkModels;
 using FGMEmailSenderApp.Models.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FGMEmailSenderApp.Services
 {
@@ -77,6 +79,15 @@ namespace FGMEmailSenderApp.Services
         public Company GetCompanyFromId(int IdCompany)
         {
             return _context.Companies.Where(c => c.IdCompany == IdCompany).FirstOrDefault();
+        }
+
+        #endregion
+
+        #region GET COMPANY FROM EMAIL
+
+        public Company GetCompanyFromEmail(string emailCompany)
+        {
+            return _context.Companies.Where(c => c.CompanyEmail == emailCompany).FirstOrDefault();
         }
 
         #endregion

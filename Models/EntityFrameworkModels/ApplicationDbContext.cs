@@ -14,6 +14,7 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
         public DbSet<Request> Requests { get; set; }
         public DbSet<StatusCargo> StatusCargos { get; set; }
         public DbSet<TypeRequest> TypesRequest { get; set; }
+        public DbSet<City> Cities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

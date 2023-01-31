@@ -127,14 +127,24 @@ namespace FGMEmailSenderApp.Controllers
 
             var user = await _userManager.FindByIdAsync(userId);
 
+            var newTypeRequest = new TypeRequest { IdTypeRequest = requestInserted.IdTypeRequest, TypeNameRequest = _context.TypesRequest.Where(t => t.IdTypeRequest == requestInserted.IdTypeRequest).FirstOrDefault().TypeNameRequest.ToString() };
+
             var newRequest = new Request
             {
                 DescriptionRequest = requestInserted.DescriptionRequest,
                 IdTypesRequest = requestInserted.IdTypeRequest,
-                TypesRequest = new TypeRequest { IdTypeRequest = requestInserted.IdTypeRequest, TypeNameRequest = _context.TypesRequest.Where(t => t.IdTypeRequest == requestInserted.IdTypeRequest).FirstOrDefault().TypeNameRequest.ToString() },
+                TypesRequest = newTypeRequest,
                 IdUser = userId,
                 User = user,
             };
+
+            await _context.Requests.AddAsync(newRequest);
+
+            await _context.TypesRequest.AddAsync(newTypeRequest);
+
+            user.Requests.Add(newRequest);
+
+            await _userManager.UpdateAsync(user);
 
             await _context.SaveChangesAsync();
 

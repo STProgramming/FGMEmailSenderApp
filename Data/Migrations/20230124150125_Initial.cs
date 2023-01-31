@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace FGMEmailSenderApp.Models.Migrations
+namespace FGMEmailSenderApp.Data.Migrations
 {
     public partial class Initial : Migration
     {
@@ -71,17 +71,11 @@ namespace FGMEmailSenderApp.Models.Migrations
                 {
                     IdStatusCargo = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    NameStatusCargo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StatusCargoIdStatusCargo = table.Column<int>(type: "int", nullable: true)
+                    NameStatusCargo = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_StatusCargo", x => x.IdStatusCargo);
-                    table.ForeignKey(
-                        name: "FK_StatusCargo_StatusCargo_StatusCargoIdStatusCargo",
-                        column: x => x.StatusCargoIdStatusCargo,
-                        principalTable: "StatusCargo",
-                        principalColumn: "IdStatusCargo");
                 });
 
             migrationBuilder.CreateTable(
@@ -228,12 +222,34 @@ namespace FGMEmailSenderApp.Models.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "City",
+                columns: table => new
+                {
+                    IdCity = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NameCity = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CapCity = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FK_IdCountry = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_City", x => x.IdCity);
+                    table.ForeignKey(
+                        name: "FK_City_Country_FK_IdCountry",
+                        column: x => x.FK_IdCountry,
+                        principalTable: "Country",
+                        principalColumn: "IdCountry",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Department",
                 columns: table => new
                 {
                     IdDepartment = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     NameDepartment = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CodeDepartment = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FK_IdCountry = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -328,6 +344,7 @@ namespace FGMEmailSenderApp.Models.Migrations
                     FK_IdStatusCargo = table.Column<int>(type: "int", nullable: false),
                     StatusCargoesIdStatusCargo = table.Column<int>(type: "int", nullable: false),
                     FK_IdCargo = table.Column<int>(type: "int", nullable: false),
+                    FK_TitleCargo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CargoesIdCargo = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -402,6 +419,11 @@ namespace FGMEmailSenderApp.Models.Migrations
                 column: "StatusCargoesIdStatusCargo");
 
             migrationBuilder.CreateIndex(
+                name: "IX_City_FK_IdCountry",
+                table: "City",
+                column: "FK_IdCountry");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Company_IdUser",
                 table: "Company",
                 column: "IdUser",
@@ -421,11 +443,6 @@ namespace FGMEmailSenderApp.Models.Migrations
                 name: "IX_Request_UserId",
                 table: "Request",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StatusCargo_StatusCargoIdStatusCargo",
-                table: "StatusCargo",
-                column: "StatusCargoIdStatusCargo");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -447,6 +464,9 @@ namespace FGMEmailSenderApp.Models.Migrations
 
             migrationBuilder.DropTable(
                 name: "CargoEvent");
+
+            migrationBuilder.DropTable(
+                name: "City");
 
             migrationBuilder.DropTable(
                 name: "Department");

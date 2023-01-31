@@ -31,13 +31,15 @@ namespace FGMEmailSenderApp.Services
             {
                 _logger.LogInformation($"Starting service in backgroung. Remove Role Add Company. {DateTime.Now}");
 
-                await RemoveRoleAddCompanyUser();
+                await RemovePermissionAddCompanyUser();
+
+                await RemovePremissionEditCompanyUser();
 
                 await Task.Delay(new TimeSpan(23, 0, 0));
             }
         }
 
-        private async Task RemoveRoleAddCompanyUser()
+        private async Task RemovePermissionAddCompanyUser()
         {
             try
             {
@@ -60,12 +62,51 @@ namespace FGMEmailSenderApp.Services
 
                         CreateOrEditFile($"{nameServiceUserPermission}. users founded: {usersPermissionRemove.Count}. date {DateTime.Now}");
 
-                        var scopedEmailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
-
                         foreach (var user in usersPermissionRemove)
                         {
                             await scopedUserManager.RemoveFromRoleAsync(user, RoleHelper.AddCompanyPermissionRole);
-                            scopedEmailSender.SendNotificationUserChangeRole(user.NameUser, user.LastNameUser, user.Email, null, null);
+                        }
+
+                        CreateOrEditFile($"{nameServiceUserPermission}. batch ended: emails notification sended to all users. date{DateTime.Now}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CreateOrEditFile($"{nameServiceUserPermission}. batch error! date{DateTime.Now}. Exception detail{ex.ToString()}");
+            }
+            finally
+            {
+                CreateOrEditFile($"{nameServiceUserPermission}. batch ended date{DateTime.Now}");
+            }
+        }
+
+        private async Task RemovePremissionEditCompanyUser()
+        {
+            try
+            {
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var scopedUserManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                    var usersPermissionsEditDataCompany = await scopedUserManager.GetUsersInRoleAsync(RoleHelper.EditCompanyPermissionRole);
+
+                    if (usersPermissionsEditDataCompany.Count == 0)
+                    {
+                        CreateOrEditFile($"{nameServiceUserPermission}: no user found. uservar:{usersPermissionsEditDataCompany}. date:{DateTime.Now}");
+                    }
+                    else
+                    {
+                        List<ApplicationUser> usersPermissionRemove = new List<ApplicationUser>();
+                        foreach (var user in usersPermissionsEditDataCompany)
+                        {
+                            if (user.Company == null) usersPermissionRemove.Add(user);
+                        }
+
+                        CreateOrEditFile($"{nameServiceUserPermission}. users founded: {usersPermissionRemove.Count}. date {DateTime.Now}");
+
+                        foreach (var user in usersPermissionRemove)
+                        {
+                            await scopedUserManager.RemoveFromRoleAsync(user, RoleHelper.EditCompanyPermissionRole);
                         }
 
                         CreateOrEditFile($"{nameServiceUserPermission}. batch ended: emails notification sended to all users. date{DateTime.Now}");
