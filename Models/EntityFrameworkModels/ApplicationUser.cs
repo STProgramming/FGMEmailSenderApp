@@ -19,7 +19,7 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
         /// <summary>
         /// Relazione con company uno a uno
         /// </summary>
-        public int IdCompany { get; set; }
+        public int? IdCompany { get; set; }
         public virtual Company? Company { get; set; }
 
         /// <summary>

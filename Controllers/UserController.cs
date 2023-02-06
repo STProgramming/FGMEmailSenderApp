@@ -180,6 +180,8 @@ namespace FGMEmailSenderApp.Controllers
 
             if (user.TwoFactorEnabled || user.PhoneNumberConfirmed)
             {
+                await HttpContext.SignOutAsync("Identity.TwoFactorRememberMe");
+
                 await GenerateToken2FA(user, loginModel.Password, loginModel.RememberMe);
 
                 return Ok(new { message = $"success = {result}, We send you the Two Factory Authentication token to your e-mail or your phone cell.", DateTime.Now });
@@ -230,6 +232,8 @@ namespace FGMEmailSenderApp.Controllers
 
             var roles = await UserSignIn(user, rememberMe);
 
+            await HttpContext.SignOutAsync("Identity.TwoFactorRememberMe");
+
             return Ok(new { message = "success", user.Email, user.NameUser, user.LastNameUser, roles, DateTime.Now });
         }
 
@@ -249,6 +253,8 @@ namespace FGMEmailSenderApp.Controllers
             if (user == null) return NotFound();
 
             await _signInManager.SignOutAsync();
+
+            await HttpContext.SignOutAsync("Identity.TwoFactorRememberMe");
 
             return Ok(new { message = "You successfully logged out", DateTime.Now });
         }
@@ -388,6 +394,7 @@ namespace FGMEmailSenderApp.Controllers
             {
                 user.EmailConfirmed = true;
                 await _userManager.UpdateAsync(user);
+                //_emailSender.ConfirmedUser(user.Email, user.NameUser);
             }
 
             return (result.Succeeded ? Ok(new { message = $"the {_lightCriptoHelper.CriptEmail(user.Email)} is been confirmed.", DateTime.Now }) : NotFound(new { message = "The token you provide was not found.", DateTime.Now }));
@@ -497,7 +504,7 @@ namespace FGMEmailSenderApp.Controllers
 
             if (user == null) throw new SecurityException("You are not allowed " + DateTime.Now);
 
-            var company = user.Company != null ? _context.Companies.Where(c => String.Equals(c.User, user.Id)).FirstOrDefault() : null;
+            var company = user.Company != null ? _context.Companies.Where(c => String.Equals(c.IdUser, user.Id)).FirstOrDefault() : null;
 
             UserViewModel userView = new UserViewModel
             {
@@ -565,6 +572,8 @@ namespace FGMEmailSenderApp.Controllers
             var rolesUser = await _userManager.GetRolesAsync(user);
 
             await _signInManager.SignInAsync(user, rememberMe);
+
+            await HttpContext.SignOutAsync("Identity.TwoFactorRememberMe");
 
             return rolesUser;
         }

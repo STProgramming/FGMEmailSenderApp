@@ -14,5 +14,7 @@ namespace FGMEmailSenderApp.Helpers
         public const string FGMEmployeeInternalRole = "FGMEmployee";
 
         public const string ReferentRole = "Referent";
+
+        public const string UserOrReferentRole = "UserRole, Referent";
     }
 }

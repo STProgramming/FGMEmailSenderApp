@@ -22,6 +22,8 @@ namespace FGMEmailSenderApp.Models.InputModels
         public string? CompanyFax { get; set; }
 
         [Required]
+        [MinLength(11)]
+        [MaxLength(11)]
         public string CompanyIva { get; set; }
     }
 }

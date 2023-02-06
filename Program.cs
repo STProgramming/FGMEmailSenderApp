@@ -4,15 +4,10 @@ using FGMEmailSenderApp.Models.EntityFrameworkModels;
 using FGMEmailSenderApp.Models.Interfaces;
 using FGMEmailSenderApp.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 using System.Security.Claims;
-using static IdentityModel.ClaimComparer;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +19,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.WriteIndented = true;
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
 #region PREVENZIONE AL CSFR
