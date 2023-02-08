@@ -107,7 +107,7 @@ namespace FGMEmailSenderApp.Controllers
 
             var confirmationLink = $"http://localhost:4200/email-confirmation?token={token}&email={newUser.Email}";
 
-            //DeleteUserFromException(_emailSender.SendVerificationEmail(newUser.NameUser, newUser.LastNameUser, newUser.Email, confirmationLink), newUser);
+            DeleteUserFromException(_emailSender.SendVerificationEmail(newUser.NameUser, newUser.LastNameUser, newUser.Email, confirmationLink), newUser);
 
             await _context.SaveChangesAsync();
 
@@ -394,7 +394,7 @@ namespace FGMEmailSenderApp.Controllers
             {
                 user.EmailConfirmed = true;
                 await _userManager.UpdateAsync(user);
-                //_emailSender.ConfirmedUser(user.Email, user.NameUser);
+                _emailSender.ConfirmedUser(user.Email, user.NameUser);
             }
 
             return (result.Succeeded ? Ok(new { message = $"the {_lightCriptoHelper.CriptEmail(user.Email)} is been confirmed.", DateTime.Now }) : NotFound(new { message = "The token you provide was not found.", DateTime.Now }));

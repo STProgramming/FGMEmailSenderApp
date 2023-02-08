@@ -509,3 +509,5 @@ RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List
 RemoveRoleAddCompanyUser. batch ended date08/02/2023 19:38:46
 RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:08/02/2023 19:38:46
 RemoveRoleAddCompanyUser. batch ended date08/02/2023 19:38:46
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:08/02/2023 19:54:14
+RemoveRoleAddCompanyUser. batch ended date08/02/2023 19:54:14

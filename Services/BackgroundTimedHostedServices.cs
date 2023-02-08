@@ -33,8 +33,6 @@ namespace FGMEmailSenderApp.Services
 
                 await RemovePermissionAddCompanyUser();
 
-                await RemovePremissionEditCompanyUser();
-
                 await Task.Delay(new TimeSpan(23, 0, 0));
             }
         }
