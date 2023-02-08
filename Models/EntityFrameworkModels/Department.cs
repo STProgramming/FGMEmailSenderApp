@@ -24,5 +24,7 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
         public int FK_IdCountry { get; set; }
 
         public virtual Country Country { get; set; }
+
+        public virtual ICollection<City> Cities { get; set; }
     }
 }

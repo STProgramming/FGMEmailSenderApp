@@ -32,6 +32,6 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
         public string NameStatusCargo { get; set; }
 
 
-        public virtual ICollection<CargoEvent> CargosEvent { get; set; }
+        public virtual ICollection<CargoEvent>? CargosEvent { get; set; }
     }
 }

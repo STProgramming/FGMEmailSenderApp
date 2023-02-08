@@ -62,13 +62,13 @@ namespace FGMEmailSenderApp.Controllers
         [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
         [HttpPost]
         [Route("AddDepartment")]
-        public async Task<IActionResult> AddDepartment([FromBody]string nameDepartment, string codeDepartment, string nameCountry)
+        public async Task<IActionResult> AddDepartment(string nameDepartment, string codeDepartment, string nameCountry)
         {
-            if(string.IsNullOrEmpty(nameDepartment) || string.IsNullOrEmpty(codeDepartment)) return StatusCode(406, $"The data you inserted is null. {DateTime.Now}");
+            if(string.IsNullOrEmpty(nameDepartment) || string.IsNullOrEmpty(codeDepartment) || string.IsNullOrEmpty(nameCountry)) return StatusCode(406, $"The data you inserted is null. {DateTime.Now}");
 
             if (DepartmentCheck(nameDepartment, codeDepartment)) return BadRequest(new { message = "This department is already signed in", DateTime.Now });
 
-            var country = GetIdCountryFromName(nameCountry);
+            var country = GetCountryFromName(nameCountry);
 
             if (country == null) return NotFound( new { message = "This country name does not belong to any signed country. Try first to add the country", DateTime.Now});
 
@@ -82,10 +82,6 @@ namespace FGMEmailSenderApp.Controllers
 
             await _context.Departments.AddAsync(newDepartment);
 
-            country.Departments.Add(newDepartment);
-
-            _context.Countries.Update(country);
-
             await _context.SaveChangesAsync();
 
             return Ok( new { newDepartment, DateTime.Now });
@@ -94,38 +90,44 @@ namespace FGMEmailSenderApp.Controllers
         [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
         [HttpPost]
         [Route("AddCity")]
-        public async Task<IActionResult> AddCity([FromBody]string nameCity, string capCity, string nameCountry)
+        public async Task<IActionResult> AddCity(string nameCity, string capCity, string nameCountry, string nameDepartment)
         {
-            if (string.IsNullOrEmpty(nameCity) || string.IsNullOrEmpty(capCity) || string.IsNullOrEmpty(nameCountry)) return StatusCode(406, $"The data you inserted is null. {DateTime.Now}");
+            if (string.IsNullOrEmpty(nameCity) || string.IsNullOrEmpty(capCity) || string.IsNullOrEmpty(nameCountry) || string.IsNullOrEmpty(nameDepartment)) return StatusCode(406, $"The data you inserted is null. {DateTime.Now}");
 
             if (CityCheck(nameCity, capCity)) return BadRequest(new { message = "This department is already signed in", DateTime.Now });
 
-            var country = GetIdCountryFromName(nameCountry);
+            var country = GetCountryFromName(nameCountry);
+
+            var department = GetDepartmentFromName(nameDepartment);
 
             if (country == null) return NotFound(new { message = "This country name does not belong to any signed country. Try first to add the country", DateTime.Now });
+
+            if (department == null) return NotFound(new { message = "This department name does not belong to any signed department. Try first to add the department", DateTime.Now });
 
             var newCity = new City
             {
                 NameCity = nameCity,
                 CapCity = capCity,
                 FK_IdCountry = country.IdCountry,
-                Country = country
+                Country = country,
+                FK_IdDepartment = department.IdDepartment,                
             };
 
             await _context.Cities.AddAsync(newCity);
-
-            country.Cities.Add(newCity);
-
-            _context.Countries.Update(country);
 
             await _context.SaveChangesAsync();
 
             return Ok(new { newCity, DateTime.Now });
         }
 
-        private Country? GetIdCountryFromName(string nameCountry)
+        private Country? GetCountryFromName(string nameCountry)
         {
             return _context.Countries.Where(c => c.CountryName.ToLower() == nameCountry.ToLower()).FirstOrDefault();
+        }
+
+        private Department? GetDepartmentFromName(string nameDepartment)
+        {
+            return _context.Departments.Where(d => d.NameDepartment.ToLower() == nameDepartment.ToLower()).FirstOrDefault();
         }
 
         private bool NameCountryExist(string nameCountry)

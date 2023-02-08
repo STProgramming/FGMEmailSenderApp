@@ -107,7 +107,7 @@ namespace FGMEmailSenderApp.Controllers
 
             var confirmationLink = $"http://localhost:4200/email-confirmation?token={token}&email={newUser.Email}";
 
-            DeleteUserFromException(_emailSender.SendVerificationEmail(newUser.NameUser, newUser.LastNameUser, newUser.Email, confirmationLink), newUser);
+            //DeleteUserFromException(_emailSender.SendVerificationEmail(newUser.NameUser, newUser.LastNameUser, newUser.Email, confirmationLink), newUser);
 
             await _context.SaveChangesAsync();
 

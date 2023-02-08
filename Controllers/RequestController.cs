@@ -21,7 +21,7 @@ namespace FGMEmailSenderApp.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
 
-        RequestController(ApplicationDbContext context,
+        public RequestController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             IEmailSender emailSender)
         {
@@ -67,7 +67,7 @@ namespace FGMEmailSenderApp.Controllers
         #region GET DETAILS REQUEST
 
         [Authorize]
-        [HttpPost]
+        [HttpGet]
         [Route("GetDetailsRequest")]
         public async Task<ActionResult<Request>> GetDetailsRequest(int idRequest)
         {
@@ -115,8 +115,7 @@ namespace FGMEmailSenderApp.Controllers
 
         #region CREATE NEW REQUEST
 
-        [Authorize(Roles = RoleHelper.UserRole)]
-        [Authorize(Roles = RoleHelper.ReferentRole)]
+        [Authorize(Roles = RoleHelper.UserOrReferentRole)]
         [HttpPost]
         [Route("CreateNewRequest")]
         public async Task<IActionResult> CreateNewRequest(RequestInputModel requestInserted)
@@ -127,7 +126,9 @@ namespace FGMEmailSenderApp.Controllers
 
             var user = await _userManager.FindByIdAsync(userId);
 
-            var newTypeRequest = new TypeRequest { IdTypeRequest = requestInserted.IdTypeRequest, TypeNameRequest = _context.TypesRequest.Where(t => t.IdTypeRequest == requestInserted.IdTypeRequest).FirstOrDefault().TypeNameRequest.ToString() };
+            var newTypeRequest = await _context.TypesRequest.Where(t => t.IdTypeRequest == requestInserted.IdTypeRequest).FirstOrDefaultAsync();
+
+            if (newTypeRequest == null) return NotFound(new { message = $"The {requestInserted.IdTypeRequest} does not belongs to any type request", DateTime.Now });
 
             var newRequest = new Request
             {
@@ -139,12 +140,6 @@ namespace FGMEmailSenderApp.Controllers
             };
 
             await _context.Requests.AddAsync(newRequest);
-
-            await _context.TypesRequest.AddAsync(newTypeRequest);
-
-            user.Requests.Add(newRequest);
-
-            await _userManager.UpdateAsync(user);
 
             await _context.SaveChangesAsync();
 
@@ -160,23 +155,27 @@ namespace FGMEmailSenderApp.Controllers
         [Route("PostResponseForRequest")]
         public async Task<IActionResult> PostResponseForRequest(int idRequest, bool response)
         {
-            var request = _context.Requests.Where(r => r.IdRequest == idRequest);
+            var request = await _context.Requests.Where(r => r.IdRequest == idRequest).FirstOrDefaultAsync();
 
             if (request == null) return NotFound(DateTime.Now);
 
-            var user = await _userManager.FindByIdAsync(request.FirstOrDefault().IdUser);
+            var user = await _userManager.FindByIdAsync(request.IdUser);
 
-            request.FirstOrDefault().Response = response;
+            request.Response = response;
 
-            if (response == true && request.FirstOrDefault().TypesRequest.IdTypeRequest != 3)
+            var company = await _context.Companies.FindAsync(user.IdCompany);
+
+            var typeRequest = await _context.TypesRequest.FindAsync(request.IdTypesRequest);
+
+            if (response == true && request.IdTypesRequest != 3)
             {
-                var typeResponse = request.FirstOrDefault().TypesRequest.IdTypeRequest == 1 ? "updateCompany" : "createCompany";
+                var typeResponse = request.IdTypesRequest == 1 ? "updateCompany" : "createCompany";
 
-                _emailSender.SendNotificationUserPermission(user.NameUser, user.LastNameUser, user.Email, request.FirstOrDefault().DescriptionRequest, user.Company.CompanyName);   
+                _emailSender.SendNotificationUserPermission(user.NameUser, user.LastNameUser, user.Email, request.DescriptionRequest, company.CompanyName);   
             }
             else
             {
-                _emailSender.SendNotificationResponseRequest(idRequest, request.FirstOrDefault().TypesRequest.ToString(), request.FirstOrDefault().DescriptionRequest.ToString(), response, request.FirstOrDefault().User.Email, request.FirstOrDefault().User.NameUser, request.FirstOrDefault().User.LastNameUser);
+                _emailSender.SendNotificationResponseRequest(idRequest, typeRequest.TypeNameRequest, request.DescriptionRequest, response, request.User.Email, request.User.NameUser, request.User.LastNameUser);
             }
 
             await _context.SaveChangesAsync();

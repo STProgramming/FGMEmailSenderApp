@@ -73,9 +73,9 @@ namespace FGMEmailSenderApp.Controllers
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         [Route("GetAllUsers")]
-        public async Task<ActionResult<List<ApplicationUser>>> GetAllUsers()
+        public List<ApplicationUser> GetAllUsers()
         {
-            return await _context.Users.ToListAsync();
+            return _userManager.Users.ToList();
         }
 
         [Authorize(Roles = "Administrator")]
@@ -144,9 +144,9 @@ namespace FGMEmailSenderApp.Controllers
         [Route("PopulateTypesRequest")]
         public async Task<IActionResult> PopulateTypesRequest()
         {
-            var TypeRequestOne = new TypeRequest { IdTypeRequest = 1, TypeNameRequest = ETypeRequest.RichiestaAggiungaReferenteAziendale.ToString() };
-            var TypeRequestTwo = new TypeRequest { IdTypeRequest = 2, TypeNameRequest = ETypeRequest.ModificaDatiAziendali.ToString() };
-            var TypeRequestThree = new TypeRequest { IdTypeRequest= 3, TypeNameRequest = ETypeRequest.PropostaCarico.ToString() };
+            var TypeRequestOne = new TypeRequest { TypeNameRequest = ETypeRequest.RichiestaAggiungaReferenteAziendale.ToString() };
+            var TypeRequestTwo = new TypeRequest { TypeNameRequest = ETypeRequest.ModificaDatiAziendali.ToString() };
+            var TypeRequestThree = new TypeRequest { TypeNameRequest = ETypeRequest.PropostaCarico.ToString() };
 
             await _context.TypesRequest.AddAsync(TypeRequestOne);
             await _context.TypesRequest.AddAsync(TypeRequestTwo);
@@ -162,16 +162,16 @@ namespace FGMEmailSenderApp.Controllers
         [Route("PopulateStatusCargo")]
         public async Task<IActionResult> PopulateStatusCargo()
         {
-            var StatusCargo1 = new StatusCargo { IdStatusCargo = 1, NameStatusCargo = EStatusCargo.Scaricato.ToString() };
-            var StatusCargo2 = new StatusCargo { IdStatusCargo = 2, NameStatusCargo = EStatusCargo.InTransito.ToString() };
-            var StatusCargo3 = new StatusCargo { IdStatusCargo = 3, NameStatusCargo = EStatusCargo.NonCaricato.ToString() };
-            var StatusCargo4 = new StatusCargo { IdStatusCargo = 4, NameStatusCargo = EStatusCargo.Caricando.ToString() };
-            var StatusCargo5 = new StatusCargo { IdStatusCargo = 5, NameStatusCargo = EStatusCargo.Scaricando.ToString() };
-            var StatusCargo6 = new StatusCargo { IdStatusCargo = 6, NameStatusCargo = EStatusCargo.Problema.ToString() };
-            var StatusCargo7 = new StatusCargo { IdStatusCargo = 7, NameStatusCargo = EStatusCargo.InPartenza.ToString() };
-            var StatusCargo8 = new StatusCargo { IdStatusCargo = 8, NameStatusCargo = EStatusCargo.InArrivo.ToString() };
-            var StatusCargo9 = new StatusCargo { IdStatusCargo = 9, NameStatusCargo = EStatusCargo.Consegnato.ToString() };
-            var StatusCargo10 = new StatusCargo { IdStatusCargo = 10, NameStatusCargo = EStatusCargo.NonConsegnato.ToString() };
+            var StatusCargo1 = new StatusCargo { NameStatusCargo = EStatusCargo.Scaricato.ToString() };
+            var StatusCargo2 = new StatusCargo { NameStatusCargo = EStatusCargo.InTransito.ToString() };
+            var StatusCargo3 = new StatusCargo { NameStatusCargo = EStatusCargo.NonCaricato.ToString() };
+            var StatusCargo4 = new StatusCargo { NameStatusCargo = EStatusCargo.Caricando.ToString() };
+            var StatusCargo5 = new StatusCargo { NameStatusCargo = EStatusCargo.Scaricando.ToString() };
+            var StatusCargo6 = new StatusCargo { NameStatusCargo = EStatusCargo.Problema.ToString() };
+            var StatusCargo7 = new StatusCargo { NameStatusCargo = EStatusCargo.InPartenza.ToString() };
+            var StatusCargo8 = new StatusCargo { NameStatusCargo = EStatusCargo.InArrivo.ToString() };
+            var StatusCargo9 = new StatusCargo { NameStatusCargo = EStatusCargo.Consegnato.ToString() };
+            var StatusCargo10 = new StatusCargo { NameStatusCargo = EStatusCargo.NonConsegnato.ToString() };
 
             await _context.StatusCargos.AddAsync(StatusCargo1);
             await _context.StatusCargos.AddAsync(StatusCargo2);

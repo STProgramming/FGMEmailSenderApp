@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Security.Claims;
 
 namespace FGMEmailSenderApp.Controllers
@@ -78,6 +79,19 @@ namespace FGMEmailSenderApp.Controllers
 
         #endregion
 
+        #region GET ALL COMPANIES
+
+        [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
+        [HttpGet]
+        [Route("GetAllCompanies")]
+
+        public async Task<ActionResult<ICollection<Company>>> GetAllCompanies()
+        {
+            return await _context.Companies.ToListAsync();
+        }
+
+        #endregion
+
         #region AGGIUNGI DATI COMPANY
 
         /// <summary>
@@ -88,17 +102,12 @@ namespace FGMEmailSenderApp.Controllers
         /// </summary>
         /// <returns></returns>
 
-        [Authorize(Policy = "AddDataCompanyPermission")]
         [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
         [HttpPost]
         [Route("AddCompanyData")]
-        public async Task<IActionResult> AddCompanyData([FromBody] AddCompanyInputModel newCompany)
+        public async Task<IActionResult> AddCompanyData(AddCompanyInputModel newCompany)
         {
             if (!ModelState.IsValid) return StatusCode(406, $"The data you submitted is not correct. {DateTime.Now}");
-
-            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-
-            var user = await _userManager.FindByIdAsync(userId);
 
             //TODO chiamata a api di invio e verifica partita iva
 
@@ -115,6 +124,41 @@ namespace FGMEmailSenderApp.Controllers
                 CompanyFax = newCompany.CompanyFax != null ? newCompany.CompanyFax : null
             };
             
+            await _context.Companies.AddAsync(company);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { company, DateTime.Now });
+        }
+
+        [Authorize(Policy = "AddDataCompanyPermission")]
+        [HttpPost]
+        [Route("AddCompanyDataByUser")]
+        public async Task<IActionResult> AddCompanyDataByUser(AddCompanyInputModel newCompany)
+        {
+            if (!ModelState.IsValid) return StatusCode(406, $"The data you submitted is not correct. {DateTime.Now}");
+
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user.Company != null || user.IdCompany != null) return BadRequest(new { message = "You can not add data from a different company", DateTime.Now });
+
+            //TODO chiamata a api di invio e verifica partita iva
+
+            if (_companyService.CheckIvaAvailability(newCompany.CompanyIva)) return BadRequest(new { message = "The partita iva you inserted belongs to another company.", DateTime.Now });
+
+            if (_companyService.CheckUniqueEmail(newCompany.CompanyEmail) && _companyService.CheckUniqueTel(newCompany.CompanyTel)) return BadRequest(new { message = "Email or Phone belongs to anothers companies.", DateTime.Now });
+
+            Company company = new Company
+            {
+                CompanyName = newCompany.CompanyName,
+                CompanyEmail = newCompany.CompanyEmail,
+                CompanyTel = newCompany.CompanyTel,
+                CompanyIva = newCompany.CompanyIva,
+                CompanyFax = newCompany.CompanyFax != null ? newCompany.CompanyFax : null
+            };
+
             user.Company = company;
 
             await _userManager.RemoveFromRoleAsync(user, RoleHelper.AddCompanyPermissionRole);
@@ -136,6 +180,7 @@ namespace FGMEmailSenderApp.Controllers
             return Ok(new { company, DateTime.Now });
         }
 
+
         #endregion
 
         #region MODIFICA DATI COMPANY
@@ -144,7 +189,7 @@ namespace FGMEmailSenderApp.Controllers
         [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
         [HttpPut]
         [Route("EditDataCompany")]
-        public async Task<IActionResult> EditDataCompany([FromBody] EditCompanyInputModel editCompany)
+        public async Task<IActionResult> EditDataCompany(EditCompanyInputModel editCompany)
         {
             if (!ModelState.IsValid) return StatusCode(406, $"The data you inserted are wrong {DateTime.Now}");
 
@@ -152,7 +197,7 @@ namespace FGMEmailSenderApp.Controllers
 
             var user = await _userManager.FindByIdAsync(userId);
 
-            var companyOldData = _companyService.GetCompanyFromId(user.IdCompany);
+            var companyOldData = _companyService.GetCompanyFromId((Int32)user.IdCompany);
 
             var companyDataEdit = new Company();
 
@@ -212,7 +257,7 @@ namespace FGMEmailSenderApp.Controllers
         {
             var emailController = new EmailAddressAttribute();
 
-            if (CheckIvaCompliant(iva) || !emailController.IsValid(emailUser)) return StatusCode(406, $"The data you inserted are wrong.{DateTime.Now}");
+            if (!CheckIvaCompliant(iva) || !emailController.IsValid(emailUser)) return StatusCode(406, $"The data you inserted are wrong.{DateTime.Now}");
 
             var user = await _userManager.FindByEmailAsync(emailUser);
 
@@ -222,9 +267,9 @@ namespace FGMEmailSenderApp.Controllers
 
             if (company == null) return NotFound(new { message = "No company was found", DateTime.Now });
 
-            if (!_context.Requests.Any(r => r.IdUser == user.Id && r.DescriptionRequest == iva || company.User != null || user.Company != null)) return BadRequest(new { message = "The user doesn't require any action to be promoted as referent of company", DateTime.Now });
+            var request = await _context.Requests.Where(r => r.IdUser == user.Id && r.IdTypesRequest == 1).FirstOrDefaultAsync();
 
-            var request = _context.Requests.Where(r => r.IdUser == user.Id && r.DescriptionRequest == iva);
+            if (company.User != null || user.Company != null) return BadRequest(new { message = "The user doesn't require any action to be promoted as referent of company", DateTime.Now });
 
             company.IdUser = user.Id;
 
@@ -236,13 +281,13 @@ namespace FGMEmailSenderApp.Controllers
 
             if (!await _roleManager.RoleExistsAsync(RoleHelper.ReferentRole)) await _roleManager.CreateAsync(new IdentityRole { Name = RoleHelper.ReferentRole });
 
-            await _userManager.AddToRoleAsync(user, RoleHelper.ReferentRole);
+            //await _userManager.AddToRoleAsync(user, RoleHelper.ReferentRole);
+
+            await _userManager.RemoveFromRoleAsync(user, RoleHelper.UserRole);
 
             await _context.SaveChangesAsync();
 
-            request.FirstOrDefault().Response = request.FirstOrDefault().Response == null ? true : true;
-
-            _emailSender.SendNotificationResponseRequest(request.FirstOrDefault().IdRequest, request.FirstOrDefault().TypesRequest.TypeNameRequest.ToString() ,request.FirstOrDefault().DescriptionRequest ,request.FirstOrDefault().Response, user.Email, user.NameUser, user.LastNameUser);
+            _emailSender.SendNotificationUserIsNowReferent(company.CompanyName, company.CompanyIva, company.CompanyEmail, user.NameUser, user.LastNameUser, user.Email);
 
             return Ok(new { message = "The company now has a new referent", DateTime.Now });
         }

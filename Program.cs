@@ -70,7 +70,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.SignIn.RequireConfirmedAccount = true;
     options.SignIn.RequireConfirmedEmail = true;
-    options.User.RequireUniqueEmail = true;  
+    options.User.RequireUniqueEmail = true; 
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();

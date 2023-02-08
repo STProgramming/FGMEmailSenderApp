@@ -177,7 +177,7 @@ namespace FGMEmailSenderApp.Controllers
 
             var user = await _userManager.FindByIdAsync(userId);
 
-            var company = _companyService.GetCompanyFromId(user.IdCompany);
+            var company = _companyService.GetCompanyFromId((Int32)user.IdCompany);
 
             return Ok(new { company.Cargos, DateTime.Now });
         }
