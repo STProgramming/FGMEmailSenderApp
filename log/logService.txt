@@ -511,3 +511,103 @@ RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List
 RemoveRoleAddCompanyUser. batch ended date08/02/2023 19:38:46
 RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:08/02/2023 19:54:14
 RemoveRoleAddCompanyUser. batch ended date08/02/2023 19:54:14
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:09/02/2023 12:04:22
+RemoveRoleAddCompanyUser. batch ended date09/02/2023 12:04:22
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:09/02/2023 14:43:10
+RemoveRoleAddCompanyUser. batch ended date09/02/2023 14:43:10
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:10/02/2023 10:05:51
+RemoveRoleAddCompanyUser. batch ended date10/02/2023 10:05:51
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:10/02/2023 10:49:33
+RemoveRoleAddCompanyUser. batch ended date10/02/2023 10:49:33
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:10/02/2023 15:22:01
+RemoveRoleAddCompanyUser. batch ended date10/02/2023 15:22:01
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:10/02/2023 15:30:17
+RemoveRoleAddCompanyUser. batch ended date10/02/2023 15:30:17
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:10/02/2023 21:30:03
+RemoveRoleAddCompanyUser. batch ended date10/02/2023 21:30:03
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:10/02/2023 21:34:10
+RemoveRoleAddCompanyUser. batch ended date10/02/2023 21:34:10
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:10/02/2023 21:36:59
+RemoveRoleAddCompanyUser. batch ended date10/02/2023 21:36:59
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:11/02/2023 12:40:08
+RemoveRoleAddCompanyUser. batch ended date11/02/2023 12:40:08
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:15/02/2023 10:33:56
+RemoveRoleAddCompanyUser. batch ended date15/02/2023 10:33:56
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:15/02/2023 11:49:29
+RemoveRoleAddCompanyUser. batch ended date15/02/2023 11:49:29
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:15/02/2023 12:43:48
+RemoveRoleAddCompanyUser. batch ended date15/02/2023 12:43:48
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:15/02/2023 14:04:46
+RemoveRoleAddCompanyUser. batch ended date15/02/2023 14:04:46
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:15/02/2023 14:31:23
+RemoveRoleAddCompanyUser. batch ended date15/02/2023 14:31:23
+RemoveRoleAddCompanyUser. batch error! date17/02/2023 15:11:36. Exception detailSystem.InvalidOperationException: An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): A connection was successfully established with the server, but then an error occurred during the login process. (provider: Shared Memory Provider, error: 0 - No process is on the other end of the pipe.)
+ ---> System.ComponentModel.Win32Exception (233): No process is on the other end of the pipe.
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParserStateObject.ReadSniError(TdsParserStateObject stateObj, UInt32 error)
+   at Microsoft.Data.SqlClient.TdsParserStateObject.ReadSniSyncOverAsync()
+   at Microsoft.Data.SqlClient.TdsParserStateObject.TryReadNetworkPacket()
+   at Microsoft.Data.SqlClient.TdsParserStateObject.TryPrepareBuffer()
+   at Microsoft.Data.SqlClient.TdsParserStateObject.TryReadByte(Byte& value)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.TdsParser.Run(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.CompleteLogin(Boolean enlistOK)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.AttemptOneLogin(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean ignoreSniOpenTimeout, TimeoutTimer timeout, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.LoginNoFailover(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString connectionOptions, SqlCredential credential, TimeoutTimer timeout)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.OpenLoginEnlist(TimeoutTimer timeout, SqlConnectionString connectionOptions, SqlCredential credential, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, Object providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData, Boolean applyTransientFaultHandling, String accessToken, DbConnectionPool pool)
+   at Microsoft.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, Object poolGroupProviderInfo, DbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionFactory.CreatePooledConnection(DbConnectionPool pool, DbConnection owningObject, DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.WaitForPendingOpen()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConneRemoveRoleAddCompanyUser. batch error! date17/02/2023 15:12:00. Exception detailSystem.InvalidOperationException: An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): A connection was successfully established with the server, but then an error occurred during the login process. (provider: Shared Memory Provider, error: 0 - No process is on the other end of the pipe.)
+ ---> System.ComponentModel.Win32Exception (233): No process is on the other end of the pipe.
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParserStateObject.ReadSniError(TdsParserStateObject stateObj, UInt32 error)
+   at Microsoft.Data.SqlClient.TdsParserStateObject.ReadSniSyncOverAsync()
+   at Microsoft.Data.SqlClient.TdsParserStateObject.TryReadNetworkPacket()
+   at Microsoft.Data.SqlClient.TdsParserStateObject.TryPrepareBuffer()
+   at Microsoft.Data.SqlClient.TdsParserStateObject.TryReadByte(Byte& value)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.TdsParser.Run(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.CompleteLogin(Boolean enlistOK)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.AttemptOneLogin(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean ignoreSniOpenTimeout, TimeoutTimer timeout, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.LoginNoFailover(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString connectionOptions, SqlCredential credential, TimeoutTimer timeout)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.OpenLoginEnlist(TimeoutTimer timeout, SqlConnectionString connectionOptions, SqlCredential credential, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, Object providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData, Boolean applyTransientFaultHandling, String accessToken, DbConnectionPool pool)
+   at Microsoft.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, Object poolGroupProviderInfo, DbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionFactory.CreatePooledConnection(DbConnectionPool pool, DbConnection owningObject, DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.WaitForPendingOpen()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+ClientConnectionId:0178e260-0c31-4515-aa18-44c0d251a5d8
+Error Number:233,State:0,Class:20
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Identity.EntityFrameworkCore.UserStore`9.GetUsersInRoleAsync(String normalizedRoleName, CancellationToken cancellationToken)
+   at FGMEmailSenderApp.Services.BackgroundTimedHostedServices.RemovePermissionAddCompanyUser() in D:\STCorp-cartella utenti\Documenti\Repository\FGMEmailSenderApp\Services\BackgroundTimedHostedServices.cs:line 47
+RemoveRoleAddCompanyUser. batch ended date17/02/2023 15:12:00
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:17/02/2023 15:24:33
+RemoveRoleAddCompanyUser. batch ended date17/02/2023 15:24:33
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:17/02/2023 20:10:08
+RemoveRoleAddCompanyUser. batch ended date17/02/2023 20:10:08
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:17/02/2023 20:21:22
+RemoveRoleAddCompanyUser. batch ended date17/02/2023 20:21:22
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:17/02/2023 20:28:00
+RemoveRoleAddCompanyUser. batch ended date17/02/2023 20:28:00

@@ -8,7 +8,10 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
     [Table("Department")]
     public class Department
     {
-        public Department() { }
+        public Department() 
+        {
+            this.Cities = new List<City>();
+        }
 
         [Key]
         [Required]

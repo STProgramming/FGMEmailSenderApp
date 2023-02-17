@@ -33,7 +33,7 @@ namespace FGMEmailSenderApp.Models.InputModels
         public string LoadingAddress { get; set; }
 
         [Required]
-        public int CapCityLoading { get; set; }
+        public string CapCityLoading { get; set; }
 
         [Required]
         [EmailAddress]
@@ -49,7 +49,7 @@ namespace FGMEmailSenderApp.Models.InputModels
         public string DeliveryAddress { get; set; }
 
         [Required]
-        public int CapCityDelivery { get; set; }
+        public string CapCityDelivery { get; set; }
 
         [Required]
         [EmailAddress]
@@ -61,6 +61,6 @@ namespace FGMEmailSenderApp.Models.InputModels
         [Required]
         public int StatusNumber { get; set; }
 
-        public string NoteCargoEvent { get; set; }
+        public string? NoteCargoEvent { get; set; }
     }
 }

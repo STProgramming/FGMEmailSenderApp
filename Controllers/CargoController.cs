@@ -88,6 +88,17 @@ namespace FGMEmailSenderApp.Controllers
 
             if (IsUniqueTitleCargo(newCargo.TitleCargo)) return BadRequest(new { message = "The title cargo you inserted is already used.", DateTime.Now });
 
+            var statusCargoSelected = await _context.StatusCargos.FindAsync(newCargo.StatusNumber);
+
+            if (statusCargoSelected == null) return NotFound(new { message = $"No status cargo with {newCargo.StatusNumber} id was found.", DateTime.Now });
+
+            var referentUserSenderCompany = await _userManager.FindByIdAsync(companyReceiver.IdUser);
+
+            var referentUserReceiverCompany = await _userManager.FindByIdAsync(companyReceiver.IdUser);
+
+            //if(IcompanySender == IcompanyReceiver) return BadRequest( new { message = ""})
+            //TODO francamente non saprei e` possibile ci siano piu` sedi della stessa societa` che possa inviarsi carichi
+
             Cargo cargoNew = new Cargo();
 
             cargoNew.TitleCargo = newCargo.TitleCargo;
@@ -100,32 +111,78 @@ namespace FGMEmailSenderApp.Controllers
             cargoNew.DepthCargo = newCargo.DepthCargo;
             cargoNew.LoadingDate = (DateTime)newCargo.LoadingDate;
             cargoNew.LoadingAddress = newCargo.LoadingAddress;
-            cargoNew.CapCityLoading = newCargo.CapCityLoading;
+            cargoNew.CapCityLoading = Int32.Parse(newCargo.CapCityLoading);
             cargoNew.CompanySenderCargoEmail = companySender.CompanyEmail;
             cargoNew.CompanySenderCargoIva = companySender.CompanyIva;
             cargoNew.DeliveryDate = (DateTime)newCargo.DeliveryDate;
             cargoNew.DeliveryAddress = newCargo.DeliveryAddress;
-            cargoNew.CapCityDelivery = newCargo.CapCityDelivery;
+            cargoNew.CapCityDelivery = Int32.Parse(newCargo.CapCityDelivery);
             cargoNew.CompanyReceiverCargoEmail = companyReceiver.CompanyEmail;
-            cargoNew.CompanySenderCargoIva = companyReceiver.CompanyIva;
+            cargoNew.CompanyReceiverCargoIva = companyReceiver.CompanyIva;
             cargoNew.FK_IdCompanySender = companySender.IdCompany;
+            cargoNew.CompanySender = companySender;
             cargoNew.FK_IdCompanyReceiver = companyReceiver.IdCompany;
-            var newCargoEvent = new CargoEvent { FK_TitleCargo = newCargo.TitleCargo, DateEvent = DateTime.Now, FK_IdStatusCargo = newCargo.StatusNumber, NoteEvent = newCargo.NoteCargoEvent };
-            cargoNew.CargoEvents.Add(newCargoEvent);
 
-            await _context.Cargos.AddAsync(cargoNew);
-            companySender.Cargos.Add(cargoNew);
-            companyReceiver.Cargos.Add(cargoNew);
-            await _context.CargoEvents.AddAsync(newCargoEvent);
+            //creating new object and save it for retriving the id
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                await transaction.CreateSavepointAsync("before commit new cargo");
 
-            await _context.SaveChangesAsync();
+                try
+                {
+                    await _context.Cargos.AddAsync(cargoNew);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackToSavepointAsync("before commit new cargo");
+                    return StatusCode(500, $"Ops, something went wrong CODE: ERRTRDBNC1 {DateTime.Now}");
+                }
+
+                //retring new id added from efcore
+
+                //getting new id created before
+                var newCargoCreated = await _context.Cargos.Where(c => c.TitleCargo == cargoNew.TitleCargo).FirstOrDefaultAsync();
+
+                //creating the new object cargo event and bind it with cargo obj
+                var newCargoEvent = new CargoEvent 
+                { 
+                    FK_TitleCargo = newCargo.TitleCargo, 
+                    DateEvent = DateTime.Now, 
+                    FK_IdStatusCargo = newCargo.StatusNumber,
+                    StatusCargoes = statusCargoSelected,
+                    NoteEvent = newCargo.NoteCargoEvent = newCargo.NoteCargoEvent == null ? "nessuna nota":newCargo.NoteCargoEvent, 
+                    FK_IdCargo = newCargoCreated.IdCargo,
+                    Cargoes = newCargoCreated
+                };
+
+                try
+                {
+                    await _context.CargoEvents.AddAsync(newCargoEvent);
+                    companySender.Cargos.Add(cargoNew);
+                    companyReceiver.Cargos.Add(cargoNew);
+                    newCargoCreated.CargoEvents.Add(newCargoEvent);
+
+                    _context.Companies.Update(companySender);
+                    _context.Companies.Update(companyReceiver);
+                    _context.Cargos.Update(newCargoCreated);
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackToSavepointAsync("before commit new cargo");
+                    return StatusCode(500, $"Ops, something went wrong CODE: ERRTRDBNC2 {DateTime.Now}");
+                }
+            }
 
             List<string> listEmailsNotification = new List<string>
             {
                 companyReceiver.CompanyEmail,
-                companyReceiver.User.Email,
+                referentUserReceiverCompany.Email,
                 companySender.CompanyEmail,
-                companySender.User.Email
+                referentUserReceiverCompany.Email
             };
 
             _emailSender.CreateNewCargo(listEmailsNotification, newCargo.TitleCargo);
@@ -185,45 +242,6 @@ namespace FGMEmailSenderApp.Controllers
         private bool IsUniqueTitleCargo(string titleCargo)
         {
             return _context.Cargos.Any(c => c.TitleCargo == titleCargo);
-        }
-
-        private string GetNameStatusByNumber(int numberStatus)
-        {
-            switch (numberStatus)
-            {
-                case 1:
-                    return EStatusCargo.Scaricato.ToString();
-
-                case 2:
-                    return EStatusCargo.InTransito.ToString();
-
-                case 3:
-                    return EStatusCargo.NonCaricato.ToString();
-
-                case 4:
-                    return EStatusCargo.Caricando.ToString();
-
-                case 5:
-                    return EStatusCargo.Scaricando.ToString();
-
-                case 6:
-                    return EStatusCargo.Problema.ToString();
-
-                case 7:
-                    return EStatusCargo.InPartenza.ToString();
-
-                case 8:
-                    return EStatusCargo.InArrivo.ToString();
-
-                case 9:
-                    return EStatusCargo.Consegnato.ToString();
-
-                case 10:
-                    return EStatusCargo.NonConsegnato.ToString();
-
-                default:
-                    throw new NotImplementedException();
-            }
         }
 
         private bool IsCompliantCargoDate(DateTime? loadingDate, DateTime? deliveryDate)

@@ -209,7 +209,7 @@ namespace FGMEmailSenderApp.Controllers
 
             string tokenProvider = user.PhoneNumberConfirmed ? "SMS" : "Email";
 
-            if (codeToken == null) return StatusCode(403, new { message = "You need to provide the token of two factory authentication", DateTime.Now });
+            if (codeToken == null) return StatusCode(403, new { message = "You need to provide the token of two factor authentication", DateTime.Now });
 
             if (!codeToken.All(c => Char.IsLetterOrDigit(c))) return StatusCode(403, new { message = "Your token doesn't respect the security rules ", DateTime.Now });
 
@@ -252,9 +252,9 @@ namespace FGMEmailSenderApp.Controllers
 
             if (user == null) return NotFound();
 
-            await _signInManager.SignOutAsync();
-
             await HttpContext.SignOutAsync("Identity.TwoFactorRememberMe");
+
+            await _signInManager.SignOutAsync();
 
             return Ok(new { message = "You successfully logged out", DateTime.Now });
         }

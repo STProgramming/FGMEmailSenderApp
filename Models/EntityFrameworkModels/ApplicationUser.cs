@@ -26,5 +26,10 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
         /// Relazione con request uno a molte
         /// </summary>
         public virtual ICollection<Request>? Requests { get; set; }
+
+        public ApplicationUser() 
+        {
+            this.Requests = new List<Request>();
+        }
     }
 }

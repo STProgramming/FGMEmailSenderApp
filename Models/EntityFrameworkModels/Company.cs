@@ -10,7 +10,10 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
     [Table("Company")]
     public class Company
     {
-        public Company() { }
+        public Company()
+        {
+            this.Cargos = new List<Cargo>();
+        }
 
         #region Properties Company
 

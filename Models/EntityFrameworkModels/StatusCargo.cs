@@ -22,7 +22,10 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
     [Table("StatusCargo")]
     public class StatusCargo
     {
-        public StatusCargo() { }
+        public StatusCargo() 
+        {
+            this.CargosEvent = new List<CargoEvent>();
+        }
 
         [Key]
         [Required]

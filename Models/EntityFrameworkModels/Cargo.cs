@@ -6,7 +6,10 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
     [Table("Cargo")]
     public class Cargo
     {
-        public Cargo() { }
+        public Cargo() 
+        {
+            this.CargoEvents = new List<CargoEvent>();
+        }
 
         #region Properties of cargo
 

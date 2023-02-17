@@ -13,6 +13,11 @@ namespace FGMEmailSenderApp.Models.EntityFrameworkModels
     [Table("TypesRequest")]
     public class TypeRequest
     {
+        public TypeRequest()
+        {
+            this.Requests= new List<Request>();
+        }
+
         [Required]
         [Key]
         public int IdTypeRequest{ get; set; }
