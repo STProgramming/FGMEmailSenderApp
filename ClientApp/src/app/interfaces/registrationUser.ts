@@ -5,3 +5,8 @@ export interface RegistrationUser{
     PhoneNumber: string;
     Password: string;
 }
+
+export interface confirmEmailInputModel{
+    token:string,
+    email:string
+}

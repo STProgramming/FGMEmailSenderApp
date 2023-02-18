@@ -20,6 +20,6 @@ export class AuthenticationCompleteComponent implements OnInit {
     this.nameUser = this.authService.getNameUser();
     setTimeout(()=>{
       this.routerService.redirectToHome();
-    }, 5000);
+    }, 3000);
   }
 }

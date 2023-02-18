@@ -43,7 +43,7 @@ export class AuthenticationService {
   }
 
   async resumeAuthentication(){
-    await this.userServiceApi.checkSessionUser().subscribe(
+    await this.userServiceApi.checkAuthenticationUser().subscribe(
       (data:any)=>{
         if(data){
           if(data.message == 'success'){

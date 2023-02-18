@@ -25,8 +25,7 @@ export class CedDepartmentComponent implements OnInit {
   _downloadFlag : Observable<boolean> = this.downloadFlag$;
   eventReloadDepartment$ = new BehaviorSubject<boolean>(false);
   
-  constructor(private readonly seoServices: SeoUserService,
-    private readonly modalService: NgbModal,
+  constructor(private readonly modalService: NgbModal,
     private readonly router: Router) {}
 
   ngOnInit(): void {

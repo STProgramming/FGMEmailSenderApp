@@ -22,8 +22,7 @@ export class CedCountryComponent implements OnInit {
   loading: boolean = false;
   eventReloadCountry$ = new BehaviorSubject<boolean>(false);
 
-  constructor(private readonly seoServices: SeoUserService,
-    private readonly modalService: NgbModal,
+  constructor(private readonly modalService: NgbModal,
     private readonly router: Router) {}
 
   ngOnInit(): void {

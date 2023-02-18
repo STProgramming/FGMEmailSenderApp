@@ -43,6 +43,8 @@ namespace FGMEmailSenderApp.Controllers
             _locationService = locationService;
         }
 
+        #region RESTITUISCE UNA LISTA DI TUTTI I CARICHI IMMESSI PER RUOLO INTERNO
+
         [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
         [HttpGet]
         [Route("GetAllCargos")]
@@ -50,6 +52,10 @@ namespace FGMEmailSenderApp.Controllers
         {
             return await _context.Cargos.ToListAsync();
         }
+
+        #endregion
+
+        #region AGGIUNGI UN CARICO
 
         [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
         [HttpPost]
@@ -190,6 +196,10 @@ namespace FGMEmailSenderApp.Controllers
             return Ok(new { message = "The cargo was created successfully.", DateTime.Now });
         }
 
+        #endregion
+
+        #region AGGIUNGI TANTI CARICHI ALLA VOLTA TRAMITE FOGLIO EXCEL
+
         //[Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
         //[HttpPost]
         //[Route("AddCargos")]
@@ -197,6 +207,10 @@ namespace FGMEmailSenderApp.Controllers
         //{
 
         //}
+
+        #endregion
+
+        #region DETTAGLI CARICO
 
         [Authorize]
         [HttpGet]
@@ -211,7 +225,7 @@ namespace FGMEmailSenderApp.Controllers
 
             if (roleUser.Contains(RoleHelper.UserRole) || roleUser.Contains(RoleHelper.ReferentRole))
             {
-                var company = await _context.Companies.Where(c => c.IdCompany == user.Company.IdCompany).FirstOrDefaultAsync();
+                var company = await _context.Companies.Where(c => c.IdCompany == user.IdCompany).FirstOrDefaultAsync();
 
                 var cargo = _context.Cargos.Where(c => c.TitleCargo == titleCargo && c.FK_IdCompanyReceiver == company.IdCompany || c.FK_IdCompanySender == company.IdCompany);
 
@@ -224,6 +238,10 @@ namespace FGMEmailSenderApp.Controllers
                 return Ok(new { cargo, DateTime.Now });
             }
         }
+
+        #endregion
+
+        #region RITORNA UNA LISTA DI TUTTI I CARICHI A CARICO DELL`AZIENDA DEL REFERENTE
 
         [Authorize]
         [HttpGet]
@@ -239,10 +257,18 @@ namespace FGMEmailSenderApp.Controllers
             return Ok(new { company.Cargos, DateTime.Now });
         }
 
+        #endregion
+
+        #region PRIVATO - CONTROLLA SE IL TITOLO CARICO E` UNICO
+
         private bool IsUniqueTitleCargo(string titleCargo)
         {
             return _context.Cargos.Any(c => c.TitleCargo == titleCargo);
         }
+
+        #endregion
+
+        #region PRIVATO - CONTROLLA SE LA DATA INSERITA E` CONFORME
 
         private bool IsCompliantCargoDate(DateTime? loadingDate, DateTime? deliveryDate)
         {
@@ -250,6 +276,8 @@ namespace FGMEmailSenderApp.Controllers
             isCompliant = loadingDate < deliveryDate && deliveryDate > loadingDate ? true : false;
             return isCompliant;
         }
+
+        #endregion
 
     }
 }

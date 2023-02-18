@@ -288,7 +288,7 @@ namespace FGMEmailSenderApp.Controllers
         #region CAMBIA PASSWORD
 
         [Authorize]
-        [HttpPost]
+        [HttpPut]
         [Route("ChangePassword")]
         public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
         {
@@ -306,7 +306,7 @@ namespace FGMEmailSenderApp.Controllers
         #region CAMBIA EMAIL
 
         [Authorize]
-        [HttpPost]
+        [HttpPut]
         [Route("ChangeEmail")]
         public async Task<IActionResult> ChangeEmail(string oldEmail, string newEmail)
         {
@@ -344,7 +344,7 @@ namespace FGMEmailSenderApp.Controllers
         #region CAMBIA NUMERO DI TELEFONO
 
         [Authorize]
-        [HttpPost]
+        [HttpPut]
         [Route("ChangePhoneNumber")]
         public async Task<IActionResult> ChangePhoneNumber(string oldPhone, string newPhone)
         {
@@ -405,7 +405,7 @@ namespace FGMEmailSenderApp.Controllers
         #region CONFERMA NUMERO DI TELEFONO
 
         [Authorize]
-        [HttpPost]
+        [HttpPut]
         [Route("ConfirmPhone")]
         public async Task<IActionResult> ConfirmPhone(string token, string phone)
         {
@@ -427,7 +427,6 @@ namespace FGMEmailSenderApp.Controllers
 
             return (result ? Ok(new { message = $"The {_lightCriptoHelper.CriptPhone(phone)} is been confirmed.", DateTime.Now }) : NotFound(new { message = "The token you provide was not found.", DateTime.Now }));
         }
-
 
         #endregion
 

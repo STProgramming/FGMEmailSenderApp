@@ -9,7 +9,6 @@ import { AuthenticationGuard } from './guards/authentication.guard';
 import { AuthComponent } from './auth-component/auth.component';
 import { WorkspaceComponent } from './workspace-component/workspace.component';
 import { RoleGuard } from './guards/role.guard';
-import { SeoComponent } from './seo-component/seo.component';
 import { CedCountryComponent } from './ced-country-component/ced-country.component';
 import { CedDepartmentComponent } from './ced-department-component/ced-department.component';
 import { SessionGuard } from './guards/session.guard';
@@ -22,12 +21,11 @@ const routes: Routes = [
   {path: 'login', component: LoginComponent, pathMatch: 'full'},
   {path: 'register', component: RegisterComponent, pathMatch: 'full'},
   {path: 'workspace', component: WorkspaceComponent, pathMatch: 'full', canActivate: [AuthenticationGuard, SessionGuard]},
-  {path: 'seo', component: SeoComponent, pathMatch: 'full', canActivate: [AuthenticationGuard, RoleGuard, SessionGuard], data: {role: 'Seo'}},
   {path: 'email-confirmation/:token&:email', component: EmailConfirmationComponent, pathMatch: 'full', canActivate: [SessionGuard]},
   {path: 'authentication-complete', component: AuthenticationCompleteComponent, pathMatch: 'full', canActivate: [AuthenticationGuard, SessionGuard]},
   {path: 'auth', pathMatch: 'full', component: AuthComponent, canActivate: [SessionGuard]},
-  {path: 'cedcountry', component: CedCountryComponent, pathMatch: 'full', canActivate: [AuthenticationGuard, RoleGuard, SessionGuard], data: {role: 'Seo'}},
-  {path: 'ceddepartment', component: CedDepartmentComponent, pathMatch: 'full', canActivate: [AuthenticationGuard, RoleGuard, SessionGuard], data: {role: 'Seo'}}
+  {path: 'cedcountry', component: CedCountryComponent, pathMatch: 'full', canActivate: [AuthenticationGuard, RoleGuard, SessionGuard], data: {role: 'FGMEmployee'}},
+  {path: 'ceddepartment', component: CedDepartmentComponent, pathMatch: 'full', canActivate: [AuthenticationGuard, RoleGuard, SessionGuard], data: {role: 'FGMEmployee'}}
 ];
 
 @NgModule({

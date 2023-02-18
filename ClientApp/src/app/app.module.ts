@@ -15,7 +15,6 @@ import { HeaderComponent } from './header-component/header.component';
 import { AuthenticationCompleteComponent } from './authentication-complete-component/authentication-complete.component';
 import { AuthComponent } from './auth-component/auth.component';
 import { WorkspaceComponent } from './workspace-component/workspace.component';
-import { SeoComponent } from './seo-component/seo.component';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTableModule } from '@angular/material/table';
 import { CedCountryComponent } from './ced-country-component/ced-country.component';
@@ -38,7 +37,6 @@ import { CookieModalComponent } from './cookie-modal-component/cookie-modal.comp
     AuthenticationCompleteComponent,
     AuthComponent,
     WorkspaceComponent,
-    SeoComponent,
     CedCountryComponent,
     CedDepartmentComponent,
     SessionModalComponent,

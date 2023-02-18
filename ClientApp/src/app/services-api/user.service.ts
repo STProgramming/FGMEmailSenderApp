@@ -26,22 +26,24 @@ export class UserService {
   }
 
   public Login(loginResponse: LoginUser) {
-    return this.httpClient.post(this.REST_API_SERVER+'/User/Login', loginResponse, {headers: null}).pipe(catchError(this.handleError));
+    return this.httpClient.post(this.REST_API_SERVER+'/api/Identity/User/Login', loginResponse, {headers: null}).pipe(catchError(this.handleError));
   }
 
   public SignUp(registerUser: RegistrationUser){
-    return this.httpClient.post(this.REST_API_SERVER+'/User/Signup', registerUser, {headers: null}).pipe(catchError(this.handleError));
+    return this.httpClient.post(this.REST_API_SERVER+'/api/Identity/User/Signup', registerUser, {headers: null}).pipe(catchError(this.handleError));
   }
 
   public confirmationRegistration(token: string, emailUser: string) {
-    return this.httpClient.get(this.REST_API_SERVER+'/User/ConfirmEmail?token='+token+'&email='+emailUser, {headers: null}).pipe(catchError(this.handleError));
+    return this.httpClient.get(this.REST_API_SERVER+'/api/Identity/User/ConfirmEmail?token='+token+'&email='+emailUser, {headers: null}).pipe(catchError(this.handleError));
   }
 
   public logoutUser(){
-    return this.httpClient.get(this.REST_API_SERVER+'/User/Logout', {headers: null}).pipe(catchError(this.handleError));
+    return this.httpClient.get(this.REST_API_SERVER+'/api/Identity/User/Logout', {headers: null}).pipe(catchError(this.handleError));
   }
 
-  public checkSessionUser(){
-    return this.httpClient.get(this.REST_API_SERVER+'/User/CheckSession', {headers: null}).pipe(catchError(this.handleError));
+  public checkAuthenticationUser(){
+    return this.httpClient.get(this.REST_API_SERVER+'/api/Identity/User/CheckAuth', {headers: null}).pipe(catchError(this.handleError));
   }
+
+  public 
 }

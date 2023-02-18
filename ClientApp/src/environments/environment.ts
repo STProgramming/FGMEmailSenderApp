@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  _VARIABLE_HOST: 'https://localhost:44301',
-  _ROLES: ['User', 'Seo', 'Admin', 'Collaborator', 'Referent', 'Employee'],
+  _VARIABLE_HOST: 'https://localhost:7067',
+  _ROLES: ['UserRole', 'Administrator', 'Referent', 'FGMEmployee'],
   _FGMTOKEN: 'FGMLocalPolicy',
   _FGMSESSION: 'FGMSessionToken',
   _FGMCOOKIE: 'FGMCookieUser'

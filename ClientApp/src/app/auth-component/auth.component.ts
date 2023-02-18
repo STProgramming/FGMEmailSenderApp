@@ -25,7 +25,7 @@ export class AuthComponent implements OnInit {
           this.routerService.redirectToHome();
         }
       });
-    }, 5000);
+    }, 3000);
   }
 
 }
