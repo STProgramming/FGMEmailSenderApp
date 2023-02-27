@@ -8,7 +8,8 @@ export const environment = {
   _ROLES: ['UserRole', 'Administrator', 'Referent', 'FGMEmployee'],
   _FGMTOKEN: 'FGMLocalPolicy',
   _FGMSESSION: 'FGMSessionToken',
-  _FGMCOOKIE: 'FGMCookieUser'
+  _FGMCOOKIE: 'FGMCookieUser',
+  _APIKEY: 'FGMSenderApplication324QAMNASIUODHIB234Q!~!#KBAFBIQJAPONIOAFBB02310253U9U23046Y6'
 };
 
 /*

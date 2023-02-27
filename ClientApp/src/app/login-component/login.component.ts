@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { LoginUser } from '../interfaces/LoginUser';
+import { LoginUser } from '../interfaces/loginUser';
 import { AuthenticationService } from '../services/authentication.service';
 
 @Component({

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { AuthenticationGuard } from '../guards/authentication.guard';
 import { SessionGuard } from '../guards/session.guard';
 import { AuthenticationService } from '../services/authentication.service';
+import { RouterService } from '../services/router.service';
 import { TokenService } from '../services/token.service';
 
 @Component({
@@ -16,10 +17,10 @@ export class HeaderComponent implements OnInit {
   _sessionExist: Observable<boolean> = this.sessionGuard.sessionFlag$;
 
   constructor(
-    private readonly router: Router,
     private readonly authGuard: AuthenticationGuard,
     private readonly authService: AuthenticationService,
-    private readonly sessionGuard: SessionGuard) {}
+    private readonly sessionGuard: SessionGuard,
+    private readonly routerService: RouterService) {}
 
   ngOnInit(): void {}
 
@@ -28,14 +29,14 @@ export class HeaderComponent implements OnInit {
   }
 
   redirectLogin(){
-    this.router.navigateByUrl('login');
+    this.routerService.redirectLogin();
   }
 
   redirectRegister(){
-    this.router.navigateByUrl('register');
+    this.routerService.redirectRegister();
   }
 
   redirectWorkspace(){
-    this.router.navigateByUrl('workspace');
+    this.routerService.redirectWorkspace();
   }
 }

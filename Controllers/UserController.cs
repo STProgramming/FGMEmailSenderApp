@@ -270,17 +270,17 @@ namespace FGMEmailSenderApp.Controllers
         {
             var userEmail = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
 
-            if (userEmail == null) return Unauthorized(new { message = "You are not authenticated.", DateTime.Now });
+            if (userEmail == null) return Ok(new { message = "You are not authenticated.", DateTime.Now });
 
             var user = await _userManager.FindByEmailAsync(userEmail);
 
-            if (user == null) return Unauthorized( new { message = "You are not authenticated.", DateTime.Now });
+            if (user == null) return Ok( new { message = "You are not authenticated.", DateTime.Now });
 
             if (user != null && await _userManager.IsLockedOutAsync(user)) return Unauthorized(new { message = "It seems your account is locked out. Try later", DateTime.Now }); 
 
             var roles = await _userManager.GetRolesAsync(user);
 
-            return Ok(new { message = "You are authenticated.", user.Email, user.NameUser, user.LastNameUser, roles, DateTime.Now });
+            return Ok(new { message = "success", user.Email, user.NameUser, user.LastNameUser, roles, DateTime.Now });
         }
 
         #endregion

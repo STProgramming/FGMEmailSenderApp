@@ -10,20 +10,20 @@ import { ErrorModalComponent } from './error-modal-component/error-modal.compone
 import { EmailConfirmationComponent } from './email-confirmation-component/email-confirmation.component';
 import { LoginComponent } from './login-component/login.component';
 import { HomeComponent } from './home-component/home.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HeaderComponent } from './header-component/header.component';
 import { AuthenticationCompleteComponent } from './authentication-complete-component/authentication-complete.component';
 import { AuthComponent } from './auth-component/auth.component';
 import { WorkspaceComponent } from './workspace-component/workspace.component';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTableModule } from '@angular/material/table';
-import { CedCountryComponent } from './ced-country-component/ced-country.component';
-import { CedDepartmentComponent } from './ced-department-component/ced-department.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SessionModalComponent } from './session-modal-component/session-modal.component';
 import { CookieModalComponent } from './cookie-modal-component/cookie-modal.component'
+import { HttpInterceptorInterceptor } from './interceptor/http-interceptor.interceptor';
+import { ErrorService } from './services/error.service';
 
 @NgModule({
   declarations: [
@@ -37,8 +37,6 @@ import { CookieModalComponent } from './cookie-modal-component/cookie-modal.comp
     AuthenticationCompleteComponent,
     AuthComponent,
     WorkspaceComponent,
-    CedCountryComponent,
-    CedDepartmentComponent,
     SessionModalComponent,
     CookieModalComponent
   ],
@@ -54,9 +52,11 @@ import { CookieModalComponent } from './cookie-modal-component/cookie-modal.comp
     MatTableModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    HttpClientModule,
   ],
-  providers: [CedCountryComponent, CedDepartmentComponent],
+  providers: [{ provide : HTTP_INTERCEPTORS, useClass: HttpInterceptorInterceptor, multi: true }, ErrorService],
+  entryComponents: [ErrorModalComponent],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

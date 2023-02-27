@@ -1,9 +1,10 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { AuthenticationGuard } from '../guards/authentication.guard';
-import { LoginUser } from '../interfaces/LoginUser';
-import { UserService } from '../services-api/user.service';
+import { LoginUser } from '../interfaces/loginUser';
 import { RouterService } from './router.service';
 import { TokenService } from './token.service';
 @Injectable({
@@ -11,12 +12,14 @@ import { TokenService } from './token.service';
 })
 export class AuthenticationService {
   _authenticated: Observable<boolean> = this.authGuard.$authentication;
+  public REST_API_SERVER = environment._VARIABLE_HOST;
+  public apiIdentityUserEndPoint = '/api/Identity/User/'
 
   constructor(
-    private readonly userServiceApi : UserService,
     private readonly tokenService : TokenService,
     private readonly routerService: RouterService,
-    private readonly authGuard: AuthenticationGuard
+    private readonly authGuard: AuthenticationGuard,
+    private readonly httpClient: HttpClient
     ) { 
       this._authenticated.subscribe(
         (event:any)=>{
@@ -28,13 +31,13 @@ export class AuthenticationService {
     }
 
   async loginAuthentication (login: LoginUser) {
-    await this.userServiceApi.Login(login).subscribe(
+    await this.httpClient.post(this.REST_API_SERVER+this.apiIdentityUserEndPoint+'Login', login).subscribe(
       (data: any) =>{
         if(data){
           let stringData = JSON.stringify(data);
           let parseData = JSON.parse(stringData);
           if(parseData.message == 'success'){
-            this.tokenService.successLoginSetInfo(parseData.email, parseData.roles, parseData.name);
+            this.tokenService.successLoginSetInfo(parseData.email, parseData.roles, parseData.nameUser);
             this.routerService.redirectToAuthentication();
           }
         }
@@ -43,7 +46,7 @@ export class AuthenticationService {
   }
 
   async resumeAuthentication(){
-    await this.userServiceApi.checkAuthenticationUser().subscribe(
+    await this.httpClient.get(this.REST_API_SERVER+this.apiIdentityUserEndPoint+'CheckAuth').subscribe(
       (data:any)=>{
         if(data){
           if(data.message == 'success'){
@@ -58,7 +61,7 @@ export class AuthenticationService {
   }
 
   async logoutUser(){
-    await this.userServiceApi.logoutUser().subscribe(
+    await this.httpClient.get(this.REST_API_SERVER+this.apiIdentityUserEndPoint+'Logout').subscribe(
       (data: any) => {
         if(data){
           this.tokenService.removeTokenRequest();

@@ -1,5 +1,10 @@
 <div class="container">
-    <h3>{{title}}</h3>
-    <p>{{errorMessage}}</p>
-    <button (click)="onOkPress()">Ok</button>
+    <h3 class="text-danger">{{title}}</h3>
+    <p class="text-danger">{{errorMessage.error.message}}</p>
+    <div *ngIf="(flagUnAuth)">
+        <button (click)="onOkPressUnAuth()">Ok</button>
+    </div>
+    <div *ngIf="(flagUnAuth == false)">
+        <button (click)="onSave()">Ok</button>
+    </div>
 </div>

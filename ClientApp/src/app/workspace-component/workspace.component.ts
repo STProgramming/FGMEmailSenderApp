@@ -8,7 +8,7 @@ import { TokenService } from '../services/token.service';
   styleUrls: ['./workspace.component.scss']
 })
 export class WorkspaceComponent implements OnInit {
-  seoClaimed: boolean;
+  referentClaimed: boolean;
   adminClaimed: boolean;
   fgmClaimed: boolean;
   time = new Date();
@@ -25,8 +25,8 @@ export class WorkspaceComponent implements OnInit {
     this.intervalId = setInterval(() => {
       this.time = new Date();
     }, 1000);
-    this.seoClaimed = this.roleService.roleRequired('Seo');
-    this.fgmClaimed = this.roleService.roleRequired('Employee');
-    this.adminClaimed = this.roleService.roleRequired('Admin');
+    this.referentClaimed = this.roleService.roleRequired('Referent');
+    this.fgmClaimed = this.roleService.roleRequired('FGMEmployee');
+    this.adminClaimed = this.roleService.roleRequired('Administrator');
   }
 }

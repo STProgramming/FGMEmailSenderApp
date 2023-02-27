@@ -18,12 +18,18 @@ namespace FGMEmailSenderApp.Controllers
             _context = context;
         }
 
+        #region GET ALL COUNTRIES
+
         [HttpGet]
         [Route("GetAllCountries")]
         public async Task<ActionResult<ICollection<Country>>> GetAllCountries()
         {
             return await _context.Countries.ToListAsync();
         }
+
+        #endregion
+
+        #region GET ALL CITIES
 
         [Authorize]
         [HttpGet]
@@ -33,6 +39,10 @@ namespace FGMEmailSenderApp.Controllers
             return await _context.Cities.ToListAsync();
         }
 
+        #endregion
+
+        #region GET ALL DEPARTMENTS
+
         [Authorize]
         [HttpGet]
         [Route("GetAllDepartments")]
@@ -40,6 +50,8 @@ namespace FGMEmailSenderApp.Controllers
         {
             return await _context.Departments.ToListAsync();
         }
+
+        #endregion
 
         [Authorize(Roles = RoleHelper.FGMEmployeeInternalRole)]
         [HttpPost]

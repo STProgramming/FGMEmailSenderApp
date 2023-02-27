@@ -8,7 +8,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { isThisTypeNode } from 'typescript';
 import { SessionModalComponent } from '../session-modal-component/session-modal.component';
 import { RouterService } from './router.service';
-import { UserService } from '../services-api/user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,8 +17,7 @@ export class SessionService {
   public id : Guid;
 
   constructor(
-   private readonly routerService: RouterService,
-   private readonly userServiceApi: UserService) {}
+   private readonly routerService: RouterService) {}
 
   createSession(){
     let date = new Date();

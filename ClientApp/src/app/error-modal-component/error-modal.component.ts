@@ -1,5 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-error-modal',
@@ -8,17 +9,23 @@ import { Router } from '@angular/router';
 })
 export class ErrorModalComponent implements OnInit {
   @Input() public errorMessage: any;
-  title: string = 'Abbiamo riscontrato un errore nella sua richiesta';
+  @Input() public flagUnAuth: boolean;
+  public title: string;
   
   constructor(
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly modalService: NgbModal
   ) { }
 
   ngOnInit(): void {
   }
 
-  onOkPress(){
+  onOkPressUnAuth(){
     //questa funzione ha il dovere di reindirizzare l'utente nell'index dell'applicazione
     this.router.navigateByUrl('');
+  }
+
+  onSave(){
+    this.modalService.dismissAll();
   }
 }

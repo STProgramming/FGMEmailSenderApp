@@ -613,3 +613,119 @@ RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List
 RemoveRoleAddCompanyUser. batch ended date17/02/2023 20:28:00
 RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:18/02/2023 10:40:32
 RemoveRoleAddCompanyUser. batch ended date18/02/2023 10:40:32
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:24/02/2023 12:58:09
+RemoveRoleAddCompanyUser. batch ended date24/02/2023 12:58:09
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:24/02/2023 14:30:22
+RemoveRoleAddCompanyUser. batch ended date24/02/2023 14:30:22
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:24/02/2023 14:56:26
+RemoveRoleAddCompanyUser. batch ended date24/02/2023 14:56:26
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:24/02/2023 15:30:00
+RemoveRoleAddCompanyUser. batch ended date24/02/2023 15:30:00
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:24/02/2023 15:40:17
+RemoveRoleAddCompanyUser. batch ended date24/02/2023 15:40:17
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:24/02/2023 20:17:17
+RemoveRoleAddCompanyUser. batch ended date24/02/2023 20:17:17
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:24/02/2023 21:06:58
+RemoveRoleAddCompanyUser. batch ended date24/02/2023 21:06:58
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:24/02/2023 21:09:44
+RemoveRoleAddCompanyUser. batch ended date24/02/2023 21:09:44
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:24/02/2023 21:13:57
+RemoveRoleAddCompanyUser. batch ended date24/02/2023 21:13:57
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:24/02/2023 21:24:28
+RemoveRoleAddCompanyUser. batch ended date24/02/2023 21:24:28
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:24/02/2023 21:35:19
+RemoveRoleAddCompanyUser. batch ended date24/02/2023 21:35:19
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:25/02/2023 13:47:43
+RemoveRoleAddCompanyUser. batch ended date25/02/2023 13:47:43
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:25/02/2023 13:54:38
+RemoveRoleAddCompanyUser. batch ended date25/02/2023 13:54:38
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 11:38:48
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 11:38:48
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 11:47:32
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 11:47:32
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 11:51:31
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 11:51:31
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 11:57:26
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 11:57:26
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 12:02:58
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 12:02:58
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 12:07:15
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 12:07:15
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 12:10:48
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 12:10:48
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 12:20:13
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 12:20:14
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 12:23:14
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 12:23:14
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 12:23:27
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 12:23:27
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 12:26:18
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 12:26:18
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 12:31:37
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 12:31:37
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 12:46:32
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 12:46:32
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 12:47:30
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 12:47:30
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 14:08:51
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 14:08:51
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 14:46:39
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 14:46:39
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 15:02:19
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 15:02:19
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 15:03:54
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 15:03:54
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 15:05:56
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 15:05:56
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 15:21:24
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 15:21:24
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 15:42:55
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 15:42:55
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 15:52:06
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 15:52:06
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 15:58:43
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 15:58:43
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 16:05:48
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 16:05:48
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 17:31:02
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 17:31:02
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 17:56:40
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 17:56:40
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 18:13:57
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 18:13:57
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 18:19:15
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 18:19:15
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 18:38:04
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 18:38:04
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 18:43:22
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 18:43:22
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 21:27:10
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 21:27:10
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 21:28:17
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 21:28:17
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 21:45:25
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 21:45:25
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 21:49:22
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 21:49:22
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 21:50:40
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 21:50:40
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 21:59:13
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 21:59:13
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 22:03:32
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 22:03:32
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 22:09:21
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 22:09:21
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 22:09:54
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 22:09:54
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 22:16:15
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 22:16:15
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 22:25:44
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 22:25:44
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 22:29:47
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 22:29:47
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 22:31:30
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 22:31:30
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 22:45:38
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 22:45:38
+RemoveRoleAddCompanyUser: no user found. uservar:System.Collections.Generic.List`1[FGMEmailSenderApp.Models.EntityFrameworkModels.ApplicationUser]. date:27/02/2023 22:48:14
+RemoveRoleAddCompanyUser. batch ended date27/02/2023 22:48:14

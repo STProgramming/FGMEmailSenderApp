@@ -6,7 +6,7 @@ export interface RegistrationUser{
     Password: string;
 }
 
-export interface confirmEmailInputModel{
-    token:string,
-    email:string
+export interface ConfirmEmailInputModel{
+    token: string;
+    email: string;
 }

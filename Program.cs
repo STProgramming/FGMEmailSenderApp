@@ -1,4 +1,5 @@
 using EmailService;
+using FGMEmailSenderApp.Attribute;
 using FGMEmailSenderApp.Helpers;
 using FGMEmailSenderApp.Models.EntityFrameworkModels;
 using FGMEmailSenderApp.Models.Interfaces;
@@ -86,12 +87,6 @@ var connection = builder.Services.AddDbContext<ApplicationDbContext>(options =>
         )
 );
 
-if(connection == null) connection = builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(
-        builder.Configuration.GetConnectionString("CourtesyDB")
-        )
-);
-
 #endregion
 
 #region CAMBIO DEL CICLO DI VITA TOKEN DI CONFERMA ACCOUNT
@@ -105,16 +100,20 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(option =>
 
 #region INSERIMENTO SERVICES
 
+var emailConfig = builder.Configuration.GetSection("EmailConfiguration")
+    .Get<EmailConfiguration>();
+
+builder.Services.AddSingleton(emailConfig);
+
+var apiKey = builder.Configuration.GetSection("ApiKeyConfiguration").Get<ApiKeyConfiguration>();
+
+builder.Services.AddSingleton(apiKey);
+
 builder.Services.AddTransient<ILightCriptoHelper, LightCriptoHelper>();
 
 builder.Services.AddTransient<ICompanyService, CompanyService>();
 
 builder.Services.AddTransient<ILocationService, LocationService>();
-
-var emailConfig = builder.Configuration.GetSection("EmailConfiguration")
-    .Get<EmailConfiguration>();
-
-builder.Services.AddSingleton(emailConfig);
 
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
 
@@ -139,6 +138,13 @@ builder.Services.AddAuthorization(option =>
 {
     option.AddPolicy("EditDataCompanyPermission", policy => policy.RequireClaim(ClaimTypes.Role, RoleHelper.EditCompanyPermissionRole));
 });
+
+#endregion
+
+#region API KEY FILTER GLOBAL
+
+builder.Services.AddControllers(options => 
+    options.Filters.Add<ApiKeyAttribute>());
 
 #endregion
 
@@ -172,6 +178,7 @@ app.UseStaticFiles(new StaticFileOptions()
         headers.Expires = DateTime.UtcNow.AddDays(7);
     }
 });
+
 app.UseCookiePolicy();
 app.UseRouting();
 app.UseAuthentication();

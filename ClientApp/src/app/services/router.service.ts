@@ -28,4 +28,16 @@ export class RouterService {
   redirectToAuthComplete(){
     this.router.navigateByUrl('authentication-complete');
   }
+
+  redirectLogin(){
+    this.router.navigateByUrl('login');
+  }
+
+  redirectRegister(){
+    this.router.navigateByUrl('register');
+  }
+
+  redirectWorkspace(){
+    this.router.navigateByUrl('workspace');
+  }
 }

@@ -1,7 +1,8 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { environment } from 'src/environments/environment';
 import { RegistrationUser } from '../interfaces/registrationUser';
-import { UserService } from '../services-api/user.service';
 
 @Component({
   selector: 'app-register',
@@ -12,9 +13,11 @@ export class RegisterComponent implements OnInit {
   public registrationFormNewUser: FormGroup = null;
   succeded: boolean = false;
   newUserEmail: string;
+  public REST_API_SERVER = environment._VARIABLE_HOST;
+  public apiIdentityUserEndPoint = '/api/Identity/User/'
 
   constructor(
-    private readonly userService: UserService
+    private readonly httpClient: HttpClient
   ) { }
 
   ngOnInit(): void {
@@ -46,7 +49,7 @@ export class RegisterComponent implements OnInit {
         "Password": password
       };
 
-      this.userService.SignUp(registrationUser).subscribe(
+      this.httpClient.post(this.REST_API_SERVER+this.apiIdentityUserEndPoint+'Signup', registrationUser).subscribe(
         (data: any) =>{
           if(data){
             this.succeded = true;
